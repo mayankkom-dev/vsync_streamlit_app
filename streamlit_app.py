@@ -64,7 +64,11 @@ def show_selenium_log(logpath):
 
 @st.cache_resource(show_spinner=False)
 def get_chromedriver_path():
-    return shutil.which('chromedriver')
+    # return shutil.which('chromedriver')
+    chrome_version = "120.0.6099.109"  # Use the actual version of your Chrome browser
+    driver_path = ChromeDriverManager(driver_version=chrome_version).install()
+    return driver_path
+
 
 def get_webdriver_service(logpath):
     service = Service(
