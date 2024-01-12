@@ -98,7 +98,6 @@ def get_webdriver_service(logpath):
 #         name = element[0].get_property('attributes')[0]['name']
 #     return name
 
-@st.cache_resource(show_spinner=True)
 def get_driver(logpath):
     return webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath=logpath))
     
