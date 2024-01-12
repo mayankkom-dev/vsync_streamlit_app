@@ -20,51 +20,8 @@ load_dotenv()
 username = "mayankk.om@gmail.com" #"scratchai.blog@gmail.com"#
 password = "Strong_pass1#" #os.getenv("LINKEDIN_PASS")
 
-def scrape_lk():
-    # Set up Chrome options
-    # Set up Chrome options
-    chrome_options = Options()
-    # Run in headless mode
-    # chrome_options.add_argument("--headless")
-
-    # Set the window size (optional)
-    chrome_options.add_argument("--window-size=1920x1080")
-
-    # Disable GPU (optional, might help with headless issues)
-    chrome_options.add_argument("--disable-gpu")
-
-    # Disable images to speed up page loading (optional)
-    # chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-
-    # Set the User-Agent header to mimic a regular Chrome browser
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-
-    # Disable notifications (optional)
-    chrome_options.add_argument("--disable-notifications")
-
-    # Disable infobars (optional)
-    chrome_options.add_argument("--disable-infobars")
-
-    # Disable extensions (optional)
-    chrome_options.add_argument("--disable-extensions")
-
-    # Disable sandboxing (optional, use with caution)
-    chrome_options.add_argument("--no-sandbox")
-
-    chrome_options.add_argument("--disable-web-security")
-    chrome_options.add_argument("--ignore-certificate-errors")
-
-    # Initialize the WebDriver with the modified options
-    # driver = webdriver.Chrome(options=chrome_options)
-    # Specify the Chrome version to use
-    # chrome_version = "92.0.4515.43"  # Update this with the desired version
-    driver_path = ChromeDriverManager().install()
-
-    # Use the driver_path when initializing the Chrome webdriver
-    driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
-    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    print("Web Driver created") 
-
+def scrape_lk(driver):
+    
     login_to_linkedin(username, password, driver)
     time.sleep(20)
     print("\033[91msleeped\033[0m")
@@ -121,6 +78,7 @@ def scrape_lk():
         
         scroll_to_bottom(driver)
         i += 1
+        break
 
     if all_valid:
         print(all_valid)
