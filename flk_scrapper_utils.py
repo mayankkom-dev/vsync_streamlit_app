@@ -5,7 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, NoSuchElementException
 import time 
 from selenium.webdriver.chrome.options import Options
-from database_utils import Post
 from bs4 import BeautifulSoup
 import hashlib
 import uuid
