@@ -1,2 +1,4 @@
+*.deb
+*.log
 .history
 __pycache__
