@@ -56,7 +56,13 @@ def scrape_lk():
 
     # Initialize the WebDriver with the modified options
     # driver = webdriver.Chrome(options=chrome_options)
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    # Specify the Chrome version to use
+    chrome_version = "92.0.4515.43"  # Update this with the desired version
+    driver_path = ChromeDriverManager(version=chrome_version).install()
+
+    # Use the driver_path when initializing the Chrome webdriver
+    driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
+    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     print("Web Driver created") 
 
     login_to_linkedin(username, password, driver)
