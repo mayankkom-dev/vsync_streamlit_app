@@ -3,3 +3,4 @@ beautifulsoup4
 streamlit==1.29.0
 python-dotenv==1.0.0
 webdriver-manager
+./google-colab-selenium-1.0.12.tar.gz

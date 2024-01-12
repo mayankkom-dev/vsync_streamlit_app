@@ -57,7 +57,7 @@ def show_selenium_log(logpath):
 def run_selenium(logpath):
     name = str()
     # with webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath=logpath)) as driver:
-    with gs.Chrome(options=get_webdriver_options(), keep_alive=True) as driver:        
+    with gs.Chrome(options=get_webdriver_options(), keep_alive=True, log_output=logpath) as driver:        
         # driver.manager.service.log_output = logpath
         url = "https://www.unibet.fr/sport/football/europa-league/europa-league-matchs"
         driver.get(url)
