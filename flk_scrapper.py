@@ -10,6 +10,8 @@ import os
 from flk_scrapper_utils import *
 import concurrent.futures
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 load_dotenv()
 
 
@@ -53,7 +55,8 @@ def scrape_lk():
     chrome_options.add_argument("--ignore-certificate-errors")
 
     # Initialize the WebDriver with the modified options
-    driver = webdriver.Chrome(options=chrome_options)
+    # driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     print("Web Driver created") 
 
     login_to_linkedin(username, password, driver)
