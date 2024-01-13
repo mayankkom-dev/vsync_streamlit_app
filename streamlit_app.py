@@ -10,11 +10,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
 
-@st.cache(show_spinner=False)
+@st.cache_data(show_spinner=False)
 def get_logpath():
     return os.path.join(os.getcwd(), 'selenium.log')
 
-@st.cache(show_spinner=False)
+@st.cache_data(show_spinner=False)
 def get_chromedriver_path():
     return shutil.which('chromedriver')
 
@@ -30,7 +30,7 @@ def get_webdriver_options():
     return options
 
 def get_webdriver_service(logpath):
-    service = Service(executable_path=get_chromedriver_path(), log_path=logpath)
+    service = Service(executable_path=get_chromedriver_path(), log_output=logpath)
     return service
 
 def delete_selenium_log(logpath):
