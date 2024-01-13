@@ -75,13 +75,6 @@ def resync_saved_post():
     with st.spinner("Syncing up..."):
         driver = get_or_create_driver()
         result = run_syncup_logic(driver)
-    # # Use st.empty() to create a placeholder
-    # result_container = st.empty()
-    # # Now update the content within the placeholder
-    # with result_container:
-    #     st.write(result)
-    #     st.info('Successfully finished. Selenium log file is shown below...')
-    #     show_selenium_log(logpath=logpath)
         st.session_state.resync_values = {'result': result}
 
 # Main flow of the Streamlit app
@@ -92,12 +85,11 @@ def main_flow():
         ''', unsafe_allow_html=True)
     st.markdown('---')
     # add ballon to session
-    st.balloons()
+    if 'first_start' not in st.session_state: st.session_state.first_start = {'value': None}
+    if st.session_state.first_start['value'] is None: st.balloons()
     if 'resync_values' not in st.session_state: st.session_state.resync_values = {'result': None}
     st.button('ReSync', on_click=cache_safe_resync_saved_post)
-    # if resync_btn:
-    #     cache_safe_resync_saved_post()
-    # Create a session state to store values across sessions
+   
     result_container = st.empty()
     log_container = st.empty()
     
@@ -105,9 +97,11 @@ def main_flow():
     if result is not None:
         with result_container:
           st.write(result)
-        #   st.info('Successfully finished. Selenium log file is shown below...')
+    if st.session_state.first_start['value'] is not None:
         with log_container:  
-          show_selenium_log(logpath=logpath)
+            show_selenium_log(logpath=logpath)
+    
+    st.session_state.first_start['value'] = True
 
 if __name__ == "__main__":
     # Set logger and last step to connect to log viewer
