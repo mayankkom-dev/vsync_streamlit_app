@@ -1,22 +1,30 @@
 import os
+import shutil
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-# from app_utils import *
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
-# Function to get the log path
-def get_logpath(logpath='selenium.log'):
-    return os.path.join(os.getcwd(), logpath)
 
-# Function to delete the Selenium log
-def delete_selenium_log(logpath):
-    if os.path.exists(logpath):
-        os.remove(logpath)
+@st.cache_data(show_spinner=False)
+def get_logpath():
+    return os.path.join(os.getcwd(), 'selenium.log')
 
-# Function to get the WebDriver options
+@st.cache_data(show_spinner=False)
+def get_chromedriver_path():
+    return shutil.which('chromedriver')
+
 def get_webdriver_options():
+    # options = Options()
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
@@ -25,13 +33,14 @@ def get_webdriver_options():
     options.add_argument("--disable-features=VizDisplayCompositor")
     return options
 
-# Function to get the WebDriver service
 def get_webdriver_service(logpath):
-    service = Service(log_output=logpath)
+    service = Service(executable_path=get_chromedriver_path(), log_output=logpath)
     return service
 
+def delete_selenium_log(logpath):
+    if os.path.exists(logpath):
+        os.remove(logpath)
 
-# Function to show Selenium log
 def show_selenium_log(logpath):
     if os.path.exists(logpath):
         with open(logpath) as f:
@@ -40,79 +49,63 @@ def show_selenium_log(logpath):
     else:
         st.warning('No log file found!')
 
-# Function to get or create the WebDriver
-def get_or_create_driver():
-    # Check if the driver is already stored in the session state
-    if 'driver' not in st.session_state:
-        logpath = get_logpath()
-        # Create a new driver if not exists
-        service = get_webdriver_service(logpath)
-        options = get_webdriver_options()
-        driver = webdriver.Chrome(service=service, options=options)
-        # Store the driver in the session state
-        st.session_state.driver = driver
-    return st.session_state.driver
+def run_selenium(logpath):
+    name = str()
+    # with webdriver.Chrome(service=get_webdriver_service(logpath), options=get_webdriver_options()) as driver:
+    #     url = "https://www.unibet.fr/sport/football/europa-league/europa-league-matchs"
+    #     driver.get(url)
+    #     xpath = '//*[@class="ui-mainview-block eventpath-wrapper"]'
+    #     try:
+    #         element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+    #         name = element.get_property('attributes')[0]['name']
+    #     except TimeoutException:
+    #         st.error("Timed out waiting for the element to be rendered")
+    # return name
+    # Navigate to the URL
+    # ##########################################
+    # Install ChromeDriver using ChromeDriverManager
+    # name = ChromeDriverManager(url="").install()
+    # st.write(name)
+    # # Create a Chrome WebDriver instance
+    # driver = webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath))
+    
+    # driver.get('https://www.linkedin.com')
 
-# Function to run sync-up logic
-def run_syncup_logic(driver):
-    ret = None
+    # # Display the page source
+    # st.write(driver.page_source)
+    # return driver.page_source
+    ###############################################
+    service = Service(log_output=logpath)
+    options = get_webdriver_options()
+
+    driver = webdriver.Chrome(service=service, options=options)
+
     driver.get('https://www.linkedin.com')
     ret = driver.page_source
+    # Display the page source
+    st.write(ret)
+    driver.quit()
     return ret
 
-def cache_safe_resync_saved_post():
-    try:
-        resync_saved_post()
-    except:
-        # restart Chrome driver
-        st.warning("Corrupt Driver.. Restarting")
-        if 'driver' in st.session_state: del st.session_state['driver']
-        resync_saved_post()
-
-# Function to handle resync button click
-def resync_saved_post():
-    # Display a spinner while the function is running
-    # with st.spinner("Syncing up..."):
-    driver = get_or_create_driver()
-    result = run_syncup_logic(driver)
-    # # Use st.empty() to create a placeholder
-    # result_container = st.empty()
-    # # Now update the content within the placeholder
-    # with result_container:
-    #     st.write(result)
-    #     st.info('Successfully finished. Selenium log file is shown below...')
-    #     show_selenium_log(logpath=logpath)
-    st.session_state.resync_values = {'result': result}
-
-# Function to load Streamlit page
-def load_st_page():
-    st.set_page_config(page_title="VirtualSync", page_icon='🫡', initial_sidebar_state='collapsed')
-    st.title('VirtualSync')
-    st.markdown('''Interact with your virtual memory and find things faster and efficient
+if __name__ == "__main__":
+    logpath = get_logpath()
+    delete_selenium_log(logpath=logpath)
+    st.set_page_config(page_title="Selenium Test", page_icon='✅', initial_sidebar_state='collapsed')
+    st.title('🔨 Selenium on Streamlit Cloud')
+    st.markdown('''This app is only a very simple test for **Selenium** running on **Streamlit Cloud** runtime.<br>
+        The suggestion for this demo app came from a post on the Streamlit Community Forum.<br>
+        <https://discuss.streamlit.io/t/issue-with-selenium-on-a-streamlit-app/11563><br><br>
+        This is just a very very simple example and more a proof of concept.<br>
+        A link is called and waited for the existence of a specific class to read a specific property.
+        If there is no error message, the action was successful.
+        Afterwards the log file of chromium is read and displayed.
         ''', unsafe_allow_html=True)
     st.markdown('---')
+
     st.balloons()
-    resync_btn = st.button('ReSync') #, on_click=cache_safe_resync_saved_post)
-    if resync_btn:
-        cache_safe_resync_saved_post()
-    # Create a session state to store values across sessions
-    if 'resync_values' not in st.session_state:
-        st.session_state.resync_values = {'result': None}
-    result_container = st.empty()
-    result = st.session_state.resync_values['result']
-    if result is not None:
-        with result_container:
-          st.write(result)
-          st.info('Successfully finished. Selenium log file is shown below...')
-          show_selenium_log(logpath=logpath)
-
-
-# Main flow of the Streamlit app
-def main_flow():
-    load_st_page()
-
-if __name__ == "__main__":
-    # Set logger and last step to connect to log viewer
-    logpath = get_logpath()
-    # delete_selenium_log(logpath=logpath)
-    main_flow()
+    if st.button('Start Selenium run'):
+        st.warning('Selenium is running, please wait...')
+        result = run_selenium(logpath=logpath)
+        st.info(f'Result -> {result}')
+        st.info('Successful finished. Selenium log file is shown below...')
+        show_selenium_log(logpath=logpath)
