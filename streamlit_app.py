@@ -9,6 +9,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+
 
 @st.cache_data(show_spinner=False)
 def get_logpath():
@@ -19,7 +22,8 @@ def get_chromedriver_path():
     return shutil.which('chromedriver')
 
 def get_webdriver_options():
-    options = Options()
+    # options = Options()
+    options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -58,17 +62,30 @@ def run_selenium(logpath):
     #         st.error("Timed out waiting for the element to be rendered")
     # return name
     # Navigate to the URL
+    # ##########################################
     # Install ChromeDriver using ChromeDriverManager
-    name = ChromeDriverManager().install()
-    st.write(name)
-    # Create a Chrome WebDriver instance
-    driver = webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath))
+    # name = ChromeDriverManager(url="").install()
+    # st.write(name)
+    # # Create a Chrome WebDriver instance
+    # driver = webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath))
     
-    driver.get('https://www.linkedin.com')
+    # driver.get('https://www.linkedin.com')
 
+    # # Display the page source
+    # st.write(driver.page_source)
+    # return driver.page_source
+    ###############################################
+    service = Service(log_output=logpath)
+    options = get_webdriver_options()
+
+    driver = webdriver.Chrome(service=service, options=options)
+
+    driver.get('https://www.linkedin.com')
+    ret = driver.page_source
     # Display the page source
-    st.write(driver.page_source)
-    return driver.page_source
+    st.write(ret)
+    driver.quit()
+    return ret
 
 if __name__ == "__main__":
     logpath = get_logpath()
