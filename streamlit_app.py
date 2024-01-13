@@ -74,8 +74,7 @@ def resync_saved_post():
     # Display a spinner while the function is running
     with st.spinner("Syncing up..."):
         driver = get_or_create_driver()
-        with driver:
-            result = run_syncup_logic(driver)
+        result = run_syncup_logic(driver)
     # # Use st.empty() to create a placeholder
     # result_container = st.empty()
     # # Now update the content within the placeholder
@@ -83,7 +82,7 @@ def resync_saved_post():
     #     st.write(result)
     #     st.info('Successfully finished. Selenium log file is shown below...')
     #     show_selenium_log(logpath=logpath)
-            st.session_state.resync_values = {'result': result}
+        st.session_state.resync_values = {'result': result}
 
 # Main flow of the Streamlit app
 def main_flow():
