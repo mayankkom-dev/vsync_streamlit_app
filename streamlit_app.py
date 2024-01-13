@@ -64,7 +64,7 @@ def cache_safe_resync_saved_post():
         resync_saved_post()
     except:
         # restart Chrome driver
-        print("Corrupt Driver.. Restarting")
+        st.warning("Corrupt Driver.. Restarting")
         if 'driver' in st.session_state: del st.session_state['driver']
         resync_saved_post()
 
@@ -91,7 +91,9 @@ def load_st_page():
         ''', unsafe_allow_html=True)
     st.markdown('---')
     st.balloons()
-    resync_btn = st.button('ReSync', on_click=cache_safe_resync_saved_post)
+    resync_btn = st.button('ReSync') #, on_click=cache_safe_resync_saved_post)
+    if resync_btn:
+        cache_safe_resync_saved_post()
     # Create a session state to store values across sessions
     if 'resync_values' not in st.session_state:
         st.session_state.resync_values = {'result': None}
