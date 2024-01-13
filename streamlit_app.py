@@ -2,7 +2,7 @@ import os
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from app_utils import *
+# from app_utils import *
 
 # Function to get the log path
 def get_logpath(logpath='selenium.log'):
