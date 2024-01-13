@@ -59,8 +59,8 @@ def run_selenium(logpath):
     # return name
     # Navigate to the URL
     # Install ChromeDriver using ChromeDriverManager
-    chrome_driver_path = ChromeDriverManager().install()
-    print(chrome_driver_path)
+    name = ChromeDriverManager().install()
+    st.write(name)
     # Create a Chrome WebDriver instance
     driver = webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath))
     
