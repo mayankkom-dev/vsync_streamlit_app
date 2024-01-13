@@ -1,25 +1,23 @@
 import os
 import shutil
-
 import streamlit as st
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-import google_colab_selenium as gs
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from exceptiongroup import TimeoutException
 
-@st.cache_resource(show_spinner=False)
+
+@st.cache(show_spinner=False)
 def get_logpath():
     return os.path.join(os.getcwd(), 'selenium.log')
 
-
-@st.cache_resource(show_spinner=False)
+@st.cache(show_spinner=False)
 def get_chromedriver_path():
     return shutil.which('chromedriver')
 
-
-@st.cache_resource(show_spinner=False)
 def get_webdriver_options():
     options = Options()
     options.add_argument("--headless")
@@ -31,19 +29,13 @@ def get_webdriver_options():
     options.add_argument("--disable-features=VizDisplayCompositor")
     return options
 
-
 def get_webdriver_service(logpath):
-    service = Service(
-        executable_path=get_chromedriver_path(),
-        log_output=logpath,
-    )
+    service = Service(executable_path=get_chromedriver_path(), log_path=logpath)
     return service
-
 
 def delete_selenium_log(logpath):
     if os.path.exists(logpath):
         os.remove(logpath)
-
 
 def show_selenium_log(logpath):
     if os.path.exists(logpath):
@@ -53,26 +45,23 @@ def show_selenium_log(logpath):
     else:
         st.warning('No log file found!')
 
-
 def run_selenium(logpath):
     name = str()
-    # with webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath=logpath)) as driver:
-    with gs.Chrome(options=get_webdriver_options(), log_output=logpath) as driver:        
-        # driver.manager.service.log_output = logpath
+    with webdriver.Chrome(service=get_webdriver_service(logpath), options=get_webdriver_options()) as driver:
         url = "https://www.unibet.fr/sport/football/europa-league/europa-league-matchs"
         driver.get(url)
         xpath = '//*[@class="ui-mainview-block eventpath-wrapper"]'
-        # Wait for the element to be rendered:
-        element = WebDriverWait(driver, 10).until(lambda x: x.find_elements(by=By.XPATH, value=xpath))
-        name = element[0].get_property('attributes')[0]['name']
+        try:
+            element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+            name = element.get_property('attributes')[0]['name']
+        except TimeoutException:
+            st.error("Timed out waiting for the element to be rendered")
     return name
 
-
 if __name__ == "__main__":
-    logpath=get_logpath()
+    logpath = get_logpath()
     delete_selenium_log(logpath=logpath)
-    st.set_page_config(page_title="Selenium Test", page_icon='✅',
-        initial_sidebar_state='collapsed')
+    st.set_page_config(page_title="Selenium Test", page_icon='✅', initial_sidebar_state='collapsed')
     st.title('🔨 Selenium on Streamlit Cloud')
     st.markdown('''This app is only a very simple test for **Selenium** running on **Streamlit Cloud** runtime.<br>
         The suggestion for this demo app came from a post on the Streamlit Community Forum.<br>
