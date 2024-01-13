@@ -65,7 +65,7 @@ def cache_safe_resync_saved_post():
     except:
         # restart Chrome driver
         print("Corrupt Driver.. Restarting")
-        del st.session_state['driver']
+        if 'driver' in st.session_state: del st.session_state['driver']
         resync_saved_post()
 
 # Function to handle resync button click
@@ -95,13 +95,13 @@ def load_st_page():
     # Create a session state to store values across sessions
     if 'resync_values' not in st.session_state:
         st.session_state.resync_values = {'result': None}
-    
-    # Display result and log file content
-    if st.session_state.resync_values['result'] is not None:
-        st.write(st.session_state.resync_values['result'])
-        st.info('Successfully finished. Selenium log file is shown below...')
-        show_selenium_log(logpath=logpath)
-
+    result_container = st.empty()
+    result = st.session_state.resync_values['result']
+    if result is not None:
+        with result_container:
+          st.write(result)
+          st.info('Successfully finished. Selenium log file is shown below...')
+          show_selenium_log(logpath=logpath)
 
 
 # Main flow of the Streamlit app
