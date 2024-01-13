@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-
+from webdriver_manager.chrome import ChromeDriverManager
 
 @st.cache_data(show_spinner=False)
 def get_logpath():
@@ -47,16 +47,28 @@ def show_selenium_log(logpath):
 
 def run_selenium(logpath):
     name = str()
-    with webdriver.Chrome(service=get_webdriver_service(logpath), options=get_webdriver_options()) as driver:
-        url = "https://www.unibet.fr/sport/football/europa-league/europa-league-matchs"
-        driver.get(url)
-        xpath = '//*[@class="ui-mainview-block eventpath-wrapper"]'
-        try:
-            element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
-            name = element.get_property('attributes')[0]['name']
-        except TimeoutException:
-            st.error("Timed out waiting for the element to be rendered")
-    return name
+    # with webdriver.Chrome(service=get_webdriver_service(logpath), options=get_webdriver_options()) as driver:
+    #     url = "https://www.unibet.fr/sport/football/europa-league/europa-league-matchs"
+    #     driver.get(url)
+    #     xpath = '//*[@class="ui-mainview-block eventpath-wrapper"]'
+    #     try:
+    #         element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, xpath)))
+    #         name = element.get_property('attributes')[0]['name']
+    #     except TimeoutException:
+    #         st.error("Timed out waiting for the element to be rendered")
+    # return name
+    # Navigate to the URL
+    # Install ChromeDriver using ChromeDriverManager
+    chrome_driver_path = ChromeDriverManager().install()
+    print(chrome_driver_path)
+    # Create a Chrome WebDriver instance
+    driver = webdriver.Chrome(options=get_webdriver_options(), service=get_webdriver_service(logpath))
+    
+    driver.get('https://www.linkedin.com')
+
+    # Display the page source
+    st.write(driver.page_source)
+    return driver.page_source
 
 if __name__ == "__main__":
     logpath = get_logpath()
