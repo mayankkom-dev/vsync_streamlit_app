@@ -55,6 +55,7 @@ def get_or_create_driver():
 
 # Function to run sync-up logic
 def run_syncup_logic(driver):
+    ret = None
     driver.get('https://www.linkedin.com')
     ret = driver.page_source
     return ret
@@ -71,9 +72,9 @@ def cache_safe_resync_saved_post():
 # Function to handle resync button click
 def resync_saved_post():
     # Display a spinner while the function is running
-    with st.spinner("Syncing up..."):
-        driver = get_or_create_driver()
-        result = run_syncup_logic(driver)
+    # with st.spinner("Syncing up..."):
+    driver = get_or_create_driver()
+    result = run_syncup_logic(driver)
     # # Use st.empty() to create a placeholder
     # result_container = st.empty()
     # # Now update the content within the placeholder
@@ -81,7 +82,7 @@ def resync_saved_post():
     #     st.write(result)
     #     st.info('Successfully finished. Selenium log file is shown below...')
     #     show_selenium_log(logpath=logpath)
-        st.session_state.resync_values = {'result': result}
+    st.session_state.resync_values = {'result': result}
 
 # Function to load Streamlit page
 def load_st_page():
