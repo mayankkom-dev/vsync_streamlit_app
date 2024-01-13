@@ -1,3 +1,0 @@
-apt-utils
-chromium
-chromedriver
