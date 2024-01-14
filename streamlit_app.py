@@ -3,6 +3,7 @@ import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+import streamlit.components.v1 as com
 # from app_utils import *
 
 # Function to get the log path
@@ -97,12 +98,30 @@ def login_to_linkedin(username, password, driver, sync_status):
     print(f"Loged In to account : {username}")
     sync_status.info('Successfully Logged In')
 
+@st.cache_data
+def load_flipcard_css():
+    with open("flipcard.css") as fp:
+        css_code = fp.read()
+    return f"<style>{css_code}</style>"
 
-def colapse_expander():
-    st.session_state.expander_state = False
-    st.session_state.usrname = ""
-    st.session_state.pwd = ""
-    
+def fetch_match_items():
+    st.session_state.search_item['result'] = f'{list(range(20))}'   
+
+def gen_flipcard(val):
+    flip_div = f'''<div class="card" onclick="this.classList.toggle('is-flipped')">
+                    <div class="card-face card-face-front">Front-{val}</div>
+                    <div class="card-face card-face-back">Back-{val}</div>
+                   </div>'''
+    return flip_div
+
+@st.cache_data
+def gen_flip_js():
+    return """<script>
+            function flipCard(element) {
+                element.classList.toggle('is-flipped');
+            } 
+            </script> """
+
 
 # Main flow of the Streamlit app
 def main_flow():
@@ -116,17 +135,68 @@ def main_flow():
     if st.session_state.first_start['value'] is None: st.balloons()
     
     if 'resync_values' not in st.session_state: st.session_state.resync_values = {'result': None}
-    if "expander_state" not in st.session_state: st.session_state.expander_state = False
+    # initialise a boolean attr in session state
+    if "button" not in st.session_state: st.session_state.button = False
+    if "search_item" not in st.session_state: st.session_state.search_item = {'result': None}
+    #  .st-emotion-cache-0{
+    #                 visibility: hidden;
+    #                 }
+    if not st.session_state.button:
+        st.markdown("""<style>
+                   .st-emotion-cache-0.eqpbllx5 {
+                        visibility: collapse;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+    # write a function for toggle functionality
+    def toggle():
+        st.session_state.button = not st.session_state.button        
+
     
-    with st.expander("SyncUp LinkedIn", expanded=st.session_state.expander_state):
-        st.button("Close", on_click=colapse_expander)
+    col1, col2, col3 = st.columns([0.7, 0.1, 0.2], gap="medium")
+    
+    text_input = col1.text_input(label="search_box", 
+                                   value="What are you looking for today?", 
+                                   label_visibility="collapsed")
+    fetch_item_btn = col2.button("🔍", on_click=fetch_match_items)
+    sync_btn = col3.button("Syncup", on_click=toggle)
+    
+    with st.expander('SyncUp LinkedIn', expanded=st.session_state.button):
         col1, col2 = st.columns(2)
         username = col1.text_input("username",  key='usrname')
-        pwd = col2.text_input("password",  key='pwd') # type="password"
-        if username or pwd: st.session_state.expander_state = True
+        pwd = col2.text_input("password",  key='pwd', type="password") # type="password"
         sync_status = st.empty()
-        st.button('ReSync', args=(username, pwd, sync_status), on_click=cache_safe_resync_saved_post)
+        col2.button('Submit', args=(username, pwd, sync_status), on_click=cache_safe_resync_saved_post)
+    
+    search_result = st.empty()
+    
+    if st.session_state.search_item['result'] is not None:
+        n_cols = 2
+        col1, col2 = search_result.columns(n_cols)
+        css_design = load_flipcard_css()
+        js_script = gen_flip_js()
+        all_items = eval(st.session_state.search_item['result'])
+        # st.write(all_items)
+        
+        n_rows = len(all_items)//n_cols
+        row_idx, st_idx = 0, 0
+        while row_idx < n_rows:
+            row_items = all_items[st_idx:st_idx+n_cols]
+            with col1:
+                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[0])}")
+                # st.markdown(f"{css_design}\n{gen_flipcard(row_items[0])}", unsafe_allow_html=True)
+            with col2:
+                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[1])}")
+                # st.markdown(f"{css_design}\n{gen_flipcard(row_items[1])}", unsafe_allow_html=True)
+            # col3.write(row_items[2])
 
+            st_idx = st_idx + n_cols
+            row_idx += 1
+        
+        remaining_item = all_items[st_idx:]
+        if remaining_item and len(remaining_item)==1: col1.write(all_items[st_idx])
+        # if remaining_item and len(remaining_item)==2: col1.write(all_items[st_idx]); col2.write(all_items[st_idx+1])
+    
     result_container = st.empty()
     log_container = st.empty()
     
