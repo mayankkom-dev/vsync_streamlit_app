@@ -224,7 +224,7 @@ def main_flow():
         
         n_rows = len(all_items)//n_cols
         row_idx, st_idx = 0, 0
-        while row_idx <= n_rows:
+        while row_idx < n_rows:
             row_items = all_items[st_idx:st_idx+n_cols]
             with col1:
                 com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[0])}", height=300, width=350)
