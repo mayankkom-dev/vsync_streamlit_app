@@ -147,9 +147,13 @@ def gen_flip_js():
 # Main flow of the Streamlit app
 def main_flow():
     st.set_page_config(page_title="VirtualSync", page_icon='🫡', initial_sidebar_state='collapsed')
-    st.title('VirtualSync')
-    st.markdown('''Interact with your virtual memory and find things faster and efficient
-        ''', unsafe_allow_html=True)
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.title('VirtualSync')
+        st.markdown('''Interact with your virtual memory and find things faster and efficient
+            ''', unsafe_allow_html=True)
+    with col2:
+        st.image('logo.png')
     st.markdown('---')
     # add ballon to session
     if 'first_start' not in st.session_state: st.session_state.first_start = {'value': None}
