@@ -1,0 +1,22 @@
+<div class="card" onclick="flipCard(this)">
+    <!-- onclick="this.classList.toggle('is-flipped')" -->
+    <div class="card-face card-face-front">
+    <div id="login-container">
+        <div class="profile-img" style="background-image: url({profile_img});"></div>
+        <h1>{write_name}</h1>
+        <h2>{write_details}</h2>        
+        <div class="post-img" style="background-image: url({post_img}); "></div>
+        <div class="description"> <p>{post_text}<a href={post_link} target="_blank" onclick="openLink(event)">See more</a></p></div>
+        <footer>
+            <div class="likes">
+                <p><i class='fa fa-heart'></i></p>
+            </div>
+        </footer>
+    </div>
+    </div>
+    <div class="card-face card-face-back">
+        <p>Back-val</p>
+    </div>
+</div>
+
+      

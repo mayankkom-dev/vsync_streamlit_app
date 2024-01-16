@@ -5,6 +5,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
 # from app_utils import *
+from temp import all_items_dump
+
 
 # Function to get the log path
 def get_logpath(logpath='selenium.log'):
@@ -105,21 +107,40 @@ def load_flipcard_css():
     return f"<style>{css_code}</style>"
 
 def fetch_match_items():
-    st.session_state.search_item['result'] = f'{list(range(20))}'   
+    with st.spinner("Scanning virtual memory !!"):
+        time.sleep(2)
+        st.session_state.search_item['result'] = all_items_dump #f'{list(range(20))}'   
 
-def gen_flipcard(val):
-    flip_div = f'''<div class="card" onclick="this.classList.toggle('is-flipped')">
-                    <div class="card-face card-face-front">Front-{val}</div>
-                    <div class="card-face card-face-back">Back-{val}</div>
-                   </div>'''
+@st.cache_data
+def fetch_flipcard_layout():
+    with open('flipcard.html') as fp:
+        flipcard_html = fp.read()
+    return flipcard_html
+
+def gen_flipcard(val): # try except and clean cache for that val
+    p_len = min(len(val.get('post_text', "No Text")), 380)
+    flip_div = fetch_flipcard_layout()
+    data = {"profile_img": val.get('writer_image', None), 
+            "write_name":  val.get('write_name', ""),
+            "write_details": val.get('writer_details', ""),
+            "post_img": val.get('post_link_img', None),
+            "post_text": val.get('post_text', "No Text")[:p_len],
+            "post_link": val.get('post_link', None)
+            }
+    flip_div = flip_div.format(**data)
     return flip_div
 
 @st.cache_data
 def gen_flip_js():
     return """<script>
-            function flipCard(element) {
-                element.classList.toggle('is-flipped');
-            } 
+            function flipCard(card) {
+                card.classList.toggle('is-flipped');
+            }
+
+            function openLink(event) {
+                // Prevent the card from flipping when clicking on the link
+                event.stopPropagation();
+            }
             </script> """
 
 
@@ -170,12 +191,13 @@ def main_flow():
     
     search_result = st.empty()
     
+    
     if st.session_state.search_item['result'] is not None:
         n_cols = 2
-        col1, col2 = search_result.columns(n_cols)
+        col1, col2 = search_result.columns(n_cols) # , col3
         css_design = load_flipcard_css()
         js_script = gen_flip_js()
-        all_items = eval(st.session_state.search_item['result'])
+        all_items = st.session_state.search_item['result']
         # st.write(all_items)
         
         n_rows = len(all_items)//n_cols
@@ -183,20 +205,28 @@ def main_flow():
         while row_idx < n_rows:
             row_items = all_items[st_idx:st_idx+n_cols]
             with col1:
-                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[0])}")
+                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[0])}", height=300, width=350)
                 # st.markdown(f"{css_design}\n{gen_flipcard(row_items[0])}", unsafe_allow_html=True)
             with col2:
-                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[1])}")
+                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[1])}", height=300, width=350)
                 # st.markdown(f"{css_design}\n{gen_flipcard(row_items[1])}", unsafe_allow_html=True)
-            # col3.write(row_items[2])
+            # with col3:
+            #     com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[2])}", height=300, width=224)
+              
 
             st_idx = st_idx + n_cols
             row_idx += 1
         
         remaining_item = all_items[st_idx:]
-        if remaining_item and len(remaining_item)==1: col1.write(all_items[st_idx])
-        # if remaining_item and len(remaining_item)==2: col1.write(all_items[st_idx]); col2.write(all_items[st_idx+1])
-    
+        if remaining_item and len(remaining_item)==1: 
+            with col1:
+                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[st_idx])}", height=300, width=350)
+        # if remaining_item and len(remaining_item)==2:
+        #     with col1:
+        #         com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[st_idx])}", height=300, width=224)
+        #     with col2:
+        #         com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[st_idx+1])}", height=300, width=224)
+
     result_container = st.empty()
     log_container = st.empty()
     

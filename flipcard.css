@@ -1,5 +1,13 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto|Sriracha&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .card {
-  width: 200px;
+  width: 350px;
   height: 300px;
   position: relative;
   transform-style: preserve-3d;
@@ -14,14 +22,120 @@
 }
 
 .card-face-front {
-  background-color: #f00;
+  background-color: rgb(138, 179, 237);
 }
 
 .card-face-back {
-  background-color: #0f0;
+  background-color: rgb(242, 190, 87);
   transform: rotateY(180deg);
 }
 
 .card.is-flipped {
   transform: rotateY(180deg);
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: "Roboto", arial, sans-serif;
+  color: #222
+}
+.profile-img {
+  height: 100px;
+  width: 100px;
+  background-size: cover;
+  background-position: center;
+  /* position: absolute;
+  top: -25px;
+  left: 251px; */
+  float: right;
+  border-radius: 50%;
+  /* box-shadow: 5px 5px 10px rgba(0,0,0,0.5); */
+}
+#login-container {
+  height: 300px;
+  width: 350px;
+  padding: 2px;
+  /* border-radius: 5px; */
+  background: #fffffb;
+  position: relative;
+  /* box-shadow: 5px 5px 10px rgba(0,0,0,0.5); */
+}
+h1 {
+  font-family: arial, sans-serif;
+  text-align: left;
+  font-size:18px;
+  margin-bottom: 2px;
+  color: #5b5f97;
+}  
+  
+h2 {
+    font-family: arial, sans-serif;
+    text-align: left;
+    font-size:12px;
+    margin-bottom: 5px;
+    color: #104771;
+  }
+p {
+  font-size: 14px;
+  text-align: left;
+}
+.post-img {
+  height: 110px;
+  width: 140px;
+  float:left;
+  margin-right: 5px;
+  background-size: cover; 
+  background-position: center; 
+}
+a {
+  text-align: center;
+}
+a:hover {
+    background: #ff6b6c;
+    color: white;
+    cursor: pointer;
+  }
+
+  footer {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    background: #5b5f97;
+    color: white;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    height: 10px;
+    padding: 0 10px;
+    /* margin-left: -20px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px; */
+    div {
+      display: flex;
+      .fa-heart {
+        color: #ff6b6c;
+      }
+     
+    }
+  }
+
+
+@-webkit-keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
