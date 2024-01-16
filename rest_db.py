@@ -14,6 +14,7 @@ class RestDB:
             'cache-control': "no-cache"
             }
         try:
+            print("making Rest Db call")
             response = requests.request("GET", url, headers=headers)
 
             if response.status_code==200:

@@ -7,6 +7,7 @@ import streamlit.components.v1 as com
 # from app_utils import *
 from temp import all_items_dump
 from flk_scrapper import scrape_lk
+from rest_db import RestDB
 
 # Function to get the log path
 def get_logpath(logpath='selenium.log'):
@@ -109,7 +110,8 @@ def load_flipcard_css():
 
 def fetch_match_items():
     with st.spinner("Scanning virtual memory !!"):
-        time.sleep(2)
+        db_client = RestDB()
+        all_items_dump = db_client.fetch_all_items()
         st.session_state.search_item['result'] = all_items_dump #f'{list(range(20))}'   
 
 @st.cache_data
@@ -222,7 +224,7 @@ def main_flow():
         
         n_rows = len(all_items)//n_cols
         row_idx, st_idx = 0, 0
-        while row_idx < n_rows:
+        while row_idx <= n_rows:
             row_items = all_items[st_idx:st_idx+n_cols]
             with col1:
                 com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[0])}", height=300, width=350)
@@ -240,7 +242,7 @@ def main_flow():
         remaining_item = all_items[st_idx:]
         if remaining_item and len(remaining_item)==1: 
             with col1:
-                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[st_idx])}", height=300, width=350)
+                com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[0])}", height=300, width=350)
         # if remaining_item and len(remaining_item)==2:
         #     with col1:
         #         com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[st_idx])}", height=300, width=224)
