@@ -65,7 +65,7 @@ def run_syncup_logic(driver, usr, pwd, sync_status):
     time.sleep(2)
     driver.get("https://www.linkedin.com/my-items/saved-posts/")
     # ret = driver.page_source
-    scrape_lk(driver)
+    scrape_lk(driver, sync_status)
     # return ret
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):

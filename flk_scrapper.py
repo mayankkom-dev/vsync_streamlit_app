@@ -20,7 +20,7 @@ username = "" #"scratchai.blog@gmail.com"#
 password = "" #os.getenv("LINKEDIN_PASS")
 
 
-def scrape_lk(driver):
+def scrape_lk(driver, sync_status):
     stop_sync_flag = False
     db_client = RestDB()
     all_saved_items = [saved_items['id_'] for saved_items in db_client.fetch_all_items()]
@@ -58,6 +58,7 @@ def scrape_lk(driver):
         # posts_elements = WebDriverWait(driver, 10).until(
         #     EC.presence_of_element_located((By.CSS_SELECTOR, '.relative.entity-result__content-summary'))
         # )
+        sync_status.info('Scrapping Saved items')
         posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         if not posts_elements[total_scraped:]: 
             # all_complete_flag = True
@@ -77,7 +78,7 @@ def scrape_lk(driver):
         # for post_ in posts_elements[total_scraped:]:
         #     prep_post = process_post(post_)
         #     processed_posts.append(prep_post)
-        
+        sync_status.info('Processing Scrapped Batch')
         total_scraped = batch_elements_len
         # Count the not None posts
         # valid_posts = [post for post in processed_posts if post is not None]
