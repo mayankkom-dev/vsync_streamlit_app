@@ -22,7 +22,7 @@ def upload_restdb(pay_list):
         }
 
     response = requests.request("POST", url, data=payload, headers=headers)
-
+    
     print(response.text)
 
 def url_to_uuid(url):

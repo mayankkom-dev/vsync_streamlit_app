@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
 # from app_utils import *
 from temp import all_items_dump
-
+from flk_scrapper import scrape_lk
 
 # Function to get the log path
 def get_logpath(logpath='selenium.log'):
@@ -63,8 +63,9 @@ def run_syncup_logic(driver, usr, pwd, sync_status):
     login_to_linkedin(usr, pwd, driver, sync_status)
     time.sleep(2)
     driver.get("https://www.linkedin.com/my-items/saved-posts/")
-    ret = driver.page_source
-    return ret
+    # ret = driver.page_source
+    scrape_lk(driver)
+    # return ret
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):
     try:
@@ -141,6 +142,21 @@ def gen_flip_js():
                 // Prevent the card from flipping when clicking on the link
                 event.stopPropagation();
             }
+            //function openPopup(url) {
+            // Show the popup
+            //document.getElementById('popup').style.display = 'block';
+
+            // Load the content into the iframe
+            //document.getElementById('popupFrame').src = url;
+            //}
+
+            //function closePopup() {
+            // Hide the popup
+            //document.getElementById('popup').style.display = 'none';
+
+            // Clear the iframe content
+            //document.getElementById('popupFrame').src = 'about:blank';
+            //}
             </script> """
 
 
