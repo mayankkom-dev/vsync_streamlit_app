@@ -131,7 +131,7 @@ def scrape_lk(driver, sync_status):
     if all_valid:
         print(all_valid)
         upload_restdb(all_valid)
-    driver.quit()
+    # driver.quit()
     status_msg = 'Completed Scrapping!'
     sync_status.info(status_msg)
     return status_msg
