@@ -12,6 +12,7 @@ import concurrent.futures
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+
 from rest_db import RestDB
 load_dotenv()
 
@@ -67,6 +68,13 @@ def scrape_lk(driver, sync_status):
         sync_status.info(status_msg)
         time.sleep(3)
         try:
+            # posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
+            # Wait up to 10 seconds for at least 1 element to be found
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "entity-result__content-container"))
+            )
+
+            # Find elements 
             posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         except Exception as e:
             sync_status.info(f"Breaking from no elements {e}")
