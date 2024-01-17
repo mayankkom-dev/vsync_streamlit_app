@@ -21,6 +21,7 @@ password = "" #os.getenv("LINKEDIN_PASS")
 
 
 def scrape_lk(driver, sync_status):
+    driver.get("https://www.linkedin.com/my-items/saved-posts/")
     stop_sync_flag = {'flag': False}
     db_client = RestDB()
     all_saved_items = [saved_items['id_'] for saved_items in db_client.fetch_all_items()]
@@ -68,7 +69,7 @@ def scrape_lk(driver, sync_status):
         posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         if not posts_elements[total_scraped:]: 
             # all_complete_flag = True
-            sync_status.info("Breaking from no elements")
+            sync_status.info(f"Breaking from no elements {posts_elements}")
             time.sleep(3)
             break
         if stop_sync_flag['flag']:

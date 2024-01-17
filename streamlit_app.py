@@ -63,7 +63,6 @@ def run_syncup_logic(driver, usr, pwd, sync_status):
     ret = None
     login_to_linkedin(usr, pwd, driver, sync_status)
     time.sleep(2)
-    driver.get("https://www.linkedin.com/my-items/saved-posts/")
     # ret = driver.page_source
     status = scrape_lk(driver, sync_status)
     st.session_state.sync_status = status
