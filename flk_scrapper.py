@@ -68,14 +68,24 @@ def scrape_lk(driver, sync_status):
         posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         if not posts_elements[total_scraped:]: 
             # all_complete_flag = True
+            sync_status.info("Breaking from no elements")
+            time.sleep(3)
             break
         if stop_sync_flag['flag']:
+            sync_status.info("Breaking from flag")
+            time.sleep(3)
             break
         batch_elements_len = len(posts_elements)
         processed_posts = []
         for post in posts_elements[total_scraped:]:
-            processed_posts.append(process_post(post))
-
+            sync_status.info("Processing one at a time")
+            time.sleep(3)
+            try:
+                processed_posts.append(process_post(post))
+            except:
+                sync_status.info("Exception one at a time")
+                time.sleep(3)
+                
         # # Number of threads you want to use
         # num_threads = 3  # Adjust as needed
 
