@@ -64,10 +64,9 @@ def get_or_create_driver():
 def run_syncup_logic(driver, usr, pwd, sync_status):
     ret = None
     driver = login_to_linkedin(usr, pwd, driver, sync_status)
-    time.sleep(2)
+    
     # ret = driver.page_source
-    status, driver = scrape_lk(driver, sync_status)
-    st.session_state.sync_status = status
+    
     # return ret
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):
@@ -101,9 +100,13 @@ def login_to_linkedin(username, password, driver, sync_status):
     # Click the "Sign in" button
     time.sleep(2)
     sign_in_button.click()
+    time.sleep(2)
     print(f"Loged In to account : {username}")
     st.session_state.sync_status = "Successfully Logged In"
-    sync_status.info(st.session_state.sync_status)
+    sync_status.write(driver.page_source)
+    time.sleep(5)
+    status, driver = scrape_lk(driver, sync_status)
+    st.session_state.sync_status = status
     return driver
 
 @st.cache_data
