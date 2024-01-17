@@ -21,14 +21,14 @@ password = "" #os.getenv("LINKEDIN_PASS")
 
 
 def scrape_lk(driver, sync_status):
-    stop_sync_flag = False
+    stop_sync_flag = {'flag': False}
     db_client = RestDB()
     all_saved_items = [saved_items['id_'] for saved_items in db_client.fetch_all_items()]
-    def check_post(post, all_saved_items=all_saved_items):
+    def check_post(post, stop_sync_flag, all_saved_items=all_saved_items):
         if post is not None:
             if post['id_'] not in all_saved_items:
                 return True
-            stop_sync_flag = True
+            stop_sync_flag['flag'] = True
             return False
         return False
     
@@ -40,7 +40,7 @@ def scrape_lk(driver, sync_status):
     # driver.get("https://www.linkedin.com/my-items/saved-posts/")
     # print("Open Your posts.")
     # time.sleep(6)
-
+    status_msg = "Not able to scroll"
     scroll_to_bottom(driver)
     total_scraped = 0
     valid_scraped = 0
@@ -58,12 +58,13 @@ def scrape_lk(driver, sync_status):
         # posts_elements = WebDriverWait(driver, 10).until(
         #     EC.presence_of_element_located((By.CSS_SELECTOR, '.relative.entity-result__content-summary'))
         # )
-        sync_status.info('Scrapping Saved items')
+        status_msg = 'Scrapping Saved items'
+        sync_status.info(status_msg)
         posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         if not posts_elements[total_scraped:]: 
             # all_complete_flag = True
             break
-        if stop_sync_flag:
+        if stop_sync_flag['flag']:
             break
         batch_elements_len = len(posts_elements)
         
@@ -78,11 +79,12 @@ def scrape_lk(driver, sync_status):
         # for post_ in posts_elements[total_scraped:]:
         #     prep_post = process_post(post_)
         #     processed_posts.append(prep_post)
-        sync_status.info('Processing Scrapped Batch')
+        status_msg = 'Processing Scrapped Batch'
+        sync_status.info(status_msg)
         total_scraped = batch_elements_len
         # Count the not None posts
         # valid_posts = [post for post in processed_posts if post is not None]
-        valid_posts = [post for post in processed_posts if check_post(post)]
+        valid_posts = [post for post in processed_posts if check_post(post, stop_sync_flag)]
         all_valid.extend(valid_posts)
         valid_scraped += len(valid_posts)
         print(f"Number of valid posts: {len(valid_posts)}")
@@ -99,7 +101,9 @@ def scrape_lk(driver, sync_status):
         print(all_valid)
         upload_restdb(all_valid)
     driver.quit()
-    return "Done"
+    status_msg = 'Completed Scrapping!'
+    sync_status.info(status_msg)
+    return status_msg
 
 # Function to get the WebDriver options
 def get_webdriver_options():

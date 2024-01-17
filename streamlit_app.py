@@ -65,7 +65,8 @@ def run_syncup_logic(driver, usr, pwd, sync_status):
     time.sleep(2)
     driver.get("https://www.linkedin.com/my-items/saved-posts/")
     # ret = driver.page_source
-    scrape_lk(driver, sync_status)
+    status = scrape_lk(driver, sync_status)
+    st.session_state.sync_status = status
     # return ret
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):
@@ -82,7 +83,8 @@ def resync_saved_post(usr, pwd, sync_status):
     # Display a spinner while the function is running
     with st.spinner("Syncing up..."):
         driver = get_or_create_driver()
-        sync_status.info("Got the driver")
+        st.session_state.sync_status = "Got the driver"
+        sync_status.info(st.session_state.sync_status)
         result = run_syncup_logic(driver, usr, pwd, sync_status)
         st.session_state.resync_values = {'result': result}
 
@@ -100,7 +102,8 @@ def login_to_linkedin(username, password, driver, sync_status):
     time.sleep(2)
     sign_in_button.click()
     print(f"Loged In to account : {username}")
-    sync_status.info('Successfully Logged In')
+    st.session_state.sync_status = "Successfully Logged In"
+    sync_status.info(st.session_state.sync_status)
 
 @st.cache_data
 def load_flipcard_css():
@@ -181,6 +184,7 @@ def main_flow():
     # initialise a boolean attr in session state
     if "button" not in st.session_state: st.session_state.button = False
     if "search_item" not in st.session_state: st.session_state.search_item = {'result': None}
+    if "sync_status" not in st.session_state: st.session_state.sync_status = ""
     #  .st-emotion-cache-0{
     #                 visibility: hidden;
     #                 }
@@ -209,6 +213,10 @@ def main_flow():
         username = col1.text_input("username",  key='usrname')
         pwd = col2.text_input("password",  key='pwd', type="password") # type="password"
         sync_status = st.empty()
+        if st.session_state.sync_status:
+            if st.session_state.sync_status != 'Completed Scrapping!': st.session_state.sync_status = ""
+            sync_status.info(st.session_state.sync_status)
+        
         col2.button('Submit', args=(username, pwd, sync_status), on_click=cache_safe_resync_saved_post)
     
     search_result = st.empty()
@@ -255,7 +263,8 @@ def main_flow():
     result = st.session_state.resync_values['result']
     if result is not None:
         with result_container:
-          sync_status.info('Sync Completed Successfully')
+          st.session_state.sync_status = 'Sync Completed Successfully'
+          sync_status.info(st.session_state.sync_status)
           st.write(result)
           
     if st.session_state.first_start['value'] is not None:
