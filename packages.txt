@@ -1,3 +1,2 @@
 apt-utils
-chromium
-chromium-driver
+google-chrome

@@ -28,6 +28,7 @@ def get_webdriver_options():
     options.add_argument("--disable-features=NetworkService")
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--disable-features=VizDisplayCompositor")
+    # options.add_argument("--")
     return options
 
 # Function to get the WebDriver service
