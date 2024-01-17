@@ -136,7 +136,7 @@ def scrape_lk(driver, sync_status):
     # driver.quit()
     status_msg = 'Completed Scrapping!'
     sync_status.info(status_msg)
-    return status_msg
+    return status_msg, driver
 
 # Function to get the WebDriver options
 def get_webdriver_options():

@@ -63,10 +63,10 @@ def get_or_create_driver():
 # Function to run sync-up logic
 def run_syncup_logic(driver, usr, pwd, sync_status):
     ret = None
-    login_to_linkedin(usr, pwd, driver, sync_status)
+    driver = login_to_linkedin(usr, pwd, driver, sync_status)
     time.sleep(2)
     # ret = driver.page_source
-    status = scrape_lk(driver, sync_status)
+    status, driver = scrape_lk(driver, sync_status)
     st.session_state.sync_status = status
     # return ret
 
@@ -104,6 +104,7 @@ def login_to_linkedin(username, password, driver, sync_status):
     print(f"Loged In to account : {username}")
     st.session_state.sync_status = "Successfully Logged In"
     sync_status.info(st.session_state.sync_status)
+    return driver
 
 @st.cache_data
 def load_flipcard_css():
