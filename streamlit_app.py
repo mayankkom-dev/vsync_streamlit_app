@@ -29,7 +29,7 @@ def get_webdriver_options():
     options.add_argument("--disable-features=NetworkService")
     options.add_argument("--window-size=1920x1080")
     options.add_argument("--disable-features=VizDisplayCompositor")
-    # options.add_argument("--")
+    options.add_argument("--disable-web-security")
     return options
 
 # Function to get the WebDriver service
@@ -82,12 +82,11 @@ def cache_safe_resync_saved_post(usr, pwd, sync_status):
 # Function to handle resync button click
 def resync_saved_post(usr, pwd, sync_status):
     # Display a spinner while the function is running
-    with st.spinner("Syncing up..."):
-        driver = get_or_create_driver()
-        st.session_state.sync_status = "Got the driver"
-        sync_status.info(st.session_state.sync_status)
-        result = run_syncup_logic(driver, usr, pwd, sync_status)
-        st.session_state.resync_values = {'result': result}
+    driver = get_or_create_driver()
+    st.session_state.sync_status = "Got the driver"
+    sync_status.info(st.session_state.sync_status)
+    result = run_syncup_logic(driver, usr, pwd, sync_status)
+    st.session_state.resync_values = {'result': result}
 
 def login_to_linkedin(username, password, driver, sync_status):
     driver.get("https://www.linkedin.com/?original_referer=")
