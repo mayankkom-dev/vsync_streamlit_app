@@ -70,7 +70,7 @@ def scrape_lk(driver, sync_status):
         batch_elements_len = len(posts_elements)
         
         # Number of threads you want to use
-        num_threads = 5  # Adjust as needed
+        num_threads = 3  # Adjust as needed
 
         # Create a ThreadPoolExecutor
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
