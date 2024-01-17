@@ -103,7 +103,7 @@ def login_to_linkedin(username, password, driver, sync_status):
     time.sleep(2)
     print(f"Loged In to account : {username}")
     st.session_state.sync_status = "Successfully Logged In"
-    sync_status.write("this", driver.page_source)
+    sync_status.write(driver.page_source)
     time.sleep(15)
     status, driver = scrape_lk(driver, sync_status)
     st.session_state.sync_status = status
