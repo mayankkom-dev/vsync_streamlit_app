@@ -64,6 +64,7 @@ def scrape_lk(driver, sync_status):
         # )
         status_msg = 'Scrapping Saved items'
         sync_status.info(status_msg)
+        time.sleep(3)
         posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         if not posts_elements[total_scraped:]: 
             # all_complete_flag = True
