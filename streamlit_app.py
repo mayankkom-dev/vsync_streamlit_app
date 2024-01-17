@@ -4,8 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
-# from app_utils import *
-from temp import all_items_dump
 from flk_scrapper import scrape_lk
 from rest_db import RestDB
 
