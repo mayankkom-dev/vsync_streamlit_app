@@ -1,2 +1,2 @@
 apt-utils
-google-chrome
+chromium-browse
