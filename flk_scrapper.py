@@ -23,6 +23,8 @@ password = "" #os.getenv("LINKEDIN_PASS")
 
 def scrape_lk(driver, sync_status):
     driver.get("https://www.linkedin.com/my-items/saved-posts/")
+    sync_status.write(driver.page_source)
+    time.sleep(2)
     stop_sync_flag = {'flag': False}
     db_client = RestDB()
     all_saved_items = [saved_items['id_'] for saved_items in db_client.fetch_all_items()]
