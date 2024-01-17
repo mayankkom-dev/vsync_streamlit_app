@@ -40,7 +40,8 @@ def scrape_lk(driver, sync_status):
     # driver.get("https://www.linkedin.com/my-items/saved-posts/")
     # print("Open Your posts.")
     # time.sleep(6)
-    status_msg = "Not able to scroll"
+    status_msg = "Attempt to scroll"
+    sync_status.info(status_msg)
     scroll_to_bottom(driver)
     total_scraped = 0
     valid_scraped = 0
