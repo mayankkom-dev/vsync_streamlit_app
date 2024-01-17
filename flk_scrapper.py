@@ -43,6 +43,9 @@ def scrape_lk(driver, sync_status):
     status_msg = "Attempt to scroll"
     sync_status.info(status_msg)
     scroll_to_bottom(driver)
+    status_msg = "Successfully scrolled..sleep(3)"
+    sync_status.info(status_msg)
+    time.sleep(3)
     total_scraped = 0
     valid_scraped = 0
     all_valid = []
@@ -68,14 +71,17 @@ def scrape_lk(driver, sync_status):
         if stop_sync_flag['flag']:
             break
         batch_elements_len = len(posts_elements)
-        
-        # Number of threads you want to use
-        num_threads = 3  # Adjust as needed
+        processed_posts = []
+        for post in posts_elements[total_scraped:]:
+            processed_posts.append(process_post(post))
 
-        # Create a ThreadPoolExecutor
-        with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-            # Submit tasks to the thread pool
-            processed_posts = list(executor.map(process_post, posts_elements[total_scraped:]))
+        # # Number of threads you want to use
+        # num_threads = 3  # Adjust as needed
+
+        # # Create a ThreadPoolExecutor
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+        #     # Submit tasks to the thread pool
+        #     processed_posts = list(executor.map(process_post, posts_elements[total_scraped:]))
         # processed_posts = []
         # for post_ in posts_elements[total_scraped:]:
         #     prep_post = process_post(post_)
