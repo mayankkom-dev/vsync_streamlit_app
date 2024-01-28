@@ -62,14 +62,15 @@ def get_or_create_driver():
 def run_syncup_logic(driver, usr, pwd, sync_status):
     ret = None
     driver = login_to_linkedin(usr, pwd, driver, sync_status)
-    
+    status, driver = scrape_lk(driver, sync_status)
+    st.session_state.sync_status = status
     # ret = driver.page_source
-    
+    sync_status.write(st.session_state.sync_status)
     # return ret
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):
     try:
-        resync_saved_post(usr, pwd, sync_status)
+        resync_saved_post(usr, pwd, sync_status) # keep only login in this block 
     except:
         # restart Chrome driver
         st.warning("Corrupt Driver.. Restarting")
@@ -102,6 +103,8 @@ def login_to_linkedin(username, password, driver, sync_status):
     # check if on verification page authenticator page
     if 'Security Verification' in driver.title:
         st.session_state.sync_status = "On Verification page"
+        sync_status.info(st.session_state.sync_status)
+        time.sleep(10)
         sync_status.write(driver.page_source)
         time.sleep(10)
     # else:    
@@ -146,8 +149,6 @@ def login_to_linkedin(username, password, driver, sync_status):
     st.session_state.sync_status = "Going to Scrape"
     sync_status.write(st.session_state.sync_status)
     time.sleep(15)
-    status, driver = scrape_lk(driver, sync_status)
-    st.session_state.sync_status = status
     return driver
 
 @st.cache_data
