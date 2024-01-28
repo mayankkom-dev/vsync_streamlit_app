@@ -4,8 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
-# from app_utils import *
-from temp import all_items_dump
 from flk_scrapper import scrape_lk
 from rest_db import RestDB
 
@@ -21,7 +19,7 @@ def delete_selenium_log(logpath):
 # Function to get the WebDriver options
 def get_webdriver_options():
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument("--remote-debugging-pipe")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
