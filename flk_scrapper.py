@@ -72,12 +72,12 @@ def scrape_lk(driver, sync_status):
         try:
             # posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
             # Wait up to 10 seconds for at least 1 element to be found
-            WebDriverWait(driver, 10).until(
+            posts_elements = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "entity-result__content-container"))
             )
 
             # Find elements 
-            posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
+            # posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         except Exception as e:
             sync_status.info(f"Breaking from no elements {e}")
             time.sleep(3)

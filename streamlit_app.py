@@ -4,6 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
+# from app_utils import *
+from temp import all_items_dump
 from flk_scrapper import scrape_lk
 from rest_db import RestDB
 
@@ -19,7 +21,7 @@ def delete_selenium_log(logpath):
 # Function to get the WebDriver options
 def get_webdriver_options():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument("--remote-debugging-pipe")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -99,9 +101,52 @@ def login_to_linkedin(username, password, driver, sync_status):
     time.sleep(2)
     sign_in_button.click()
     time.sleep(2)
+    # check if on verification page authenticator page
+    if 'Security Verification' in driver.title:
+        st.session_state.sync_status = "On Verification page"
+        sync_status.write(driver.page_source)
+        time.sleep(10)
+    # else:    
+    # try:
+    #     verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
+    #     st.session_state.sync_status = "Clicked Verify"
+    #     sync_status.write(driver.page_source)
+    #     print("Inside verification page")
+    #     verification_btn.click()
+    #     time.sleep(2)
+    #     # Display text
+    #     text = driver.find_element(By.CSS_SELECTOR, "div.game_children_text").text 
+    #     sync_status.write(text)
+    #     time.sleep(2)
+    #     # Display images
+    #     ul_element = driver.find_elements(By.CSS_SELECTOR, "div.game_children_challenge")
+    #     # Find all <li> elements within the <ul>
+    #     li_elements = ul_element.find_elements_by_tag_name('li')
+    #     # # Extract image URLs
+    #     # image_urls = []
+    #     # for li in li_elements:
+    #     #     a_element = li.find_element_by_tag_name('a')
+    #     #     image_url = a_element.get_attribute('aria-label')
+    #     #     image_urls.append(image_url)
+    #     # for i, image in enumerate(images):
+    #     #     src = image.get_attribute("src")
+    #     #     container.image(src, caption=f"Image {i+1}")
+
+
+        
+    # except:
+    #     print("Not on verification page")
+    #     pass
+    
+    
     print(f"Loged In to account : {username}")
     st.session_state.sync_status = "Successfully Logged In"
+    sync_status.write(st.session_state.sync_status)
+    time.sleep(15)
     sync_status.write(driver.page_source)
+    time.sleep(15)
+    st.session_state.sync_status = "Going to Scrape"
+    sync_status.write(st.session_state.sync_status)
     time.sleep(15)
     status, driver = scrape_lk(driver, sync_status)
     st.session_state.sync_status = status
