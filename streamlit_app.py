@@ -140,11 +140,13 @@ def login_to_linkedin(username, password, driver, sync_status):
             sync_status.info(st.session_state.sync_status)
             # time.sleep(20)
             # sync_status.write(driver.page_source)
-            time.sleep(10)
-            verification_btn = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Verify')]"))
+            # time.sleep(10)
+            WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "main-ctn"))
             )
-            # verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
+            sync_status.write(driver.page_source)
+            time.sleep(10)
+            verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
             verification_btn.click()
             st.session_state.sync_status = "Clicked Verify"
             sync_status.info(st.session_state.sync_status)
