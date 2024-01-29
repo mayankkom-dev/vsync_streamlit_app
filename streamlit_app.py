@@ -149,18 +149,20 @@ def login_to_linkedin(username, password, driver, sync_status):
             time.sleep(10)
             # sync_status.write(driver.page_source)
             # time.sleep(10)
-            WebDriverWait(driver, 100).until(
+            funcaptcha_iframe = WebDriverWait(driver, 100).until(
                 EC.presence_of_element_located((By.ID, "arkoseframe"))
             )
             st.session_state.sync_status = "found iframe"
             sync_status.info(st.session_state.sync_status)
-            time.sleep(10)
+            time.sleep(20)
+            driver.switch_to.frame(funcaptcha_iframe)
             verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
             verification_btn.click()
             st.session_state.sync_status = "Clicked Verify"
             sync_status.info(st.session_state.sync_status)
             print("Inside verification page")
             time.sleep(10)
+            driver.switch_to.default_content()
             
         
             text = driver.find_element(By.CSS_SELECTOR, "div.game_children_text").text 
