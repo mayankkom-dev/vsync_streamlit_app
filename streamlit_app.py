@@ -108,7 +108,7 @@ def login_to_linkedin(username, password, driver, sync_status):
     
     # check if on verification page authenticator page
     if 'Security Verification' in driver.title:
-        st.session_state.update_auth =  True
+        # st.session_state.update_auth =  True
         st.session_state.sync_status = "On Verification page"
         sync_status.info(st.session_state.sync_status)
         #  check the type of verification page you are on
@@ -252,7 +252,7 @@ def main_flow():
     if "button" not in st.session_state: st.session_state.button = False
     if "search_item" not in st.session_state: st.session_state.search_item = {'result': None}
     if "sync_status" not in st.session_state: st.session_state.sync_status = ""
-    if "update_auth" not in st.session_state: st.session_state.update_auth = False
+    if "update_auth" not in st.session_state: st.session_state.update_auth = True
     #  .st-emotion-cache-0{
     #                 visibility: hidden;
     #                 }
