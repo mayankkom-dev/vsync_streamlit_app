@@ -121,8 +121,19 @@ def login_to_linkedin(username, password, driver, sync_status):
     time.sleep(2)
     sign_in_button.click()
     time.sleep(2)
-    sync_status.write(driver.page_source)
-    time.sleep(10)
+    # sync_status.write(driver.page_source)
+    # Wait for the page_source to be loaded
+    try:
+        WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "main-ctn"))
+            )
+        sync_status.write("Page source loaded successfully.")
+        time.sleep(10)
+        sync_status.write(driver.page_source)
+        time.sleep(10)
+    except Exception as e:
+        sync_status.write(f"Page source load failed: {e}")
+        # time.sleep(10)
     
     # check if on verification page authenticator page
     if 'Security Verification' in driver.title:
@@ -149,11 +160,11 @@ def login_to_linkedin(username, password, driver, sync_status):
             # time.sleep(20)
             # sync_status.write(driver.page_source)
             # time.sleep(10)
-            WebDriverWait(driver, 30).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "main-ctn"))
-            )
-            sync_status.write(driver.page_source)
-            time.sleep(10)
+            # WebDriverWait(driver, 30).until(
+            #     EC.presence_of_element_located((By.CLASS_NAME, "main-ctn"))
+            # )
+            # sync_status.write(driver.page_source)
+            # time.sleep(10)
             verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
             verification_btn.click()
             st.session_state.sync_status = "Clicked Verify"
