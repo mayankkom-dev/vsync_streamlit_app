@@ -86,8 +86,10 @@ def resync_saved_post(usr, pwd, sync_status):
     result = run_syncup_logic(driver, usr, pwd, sync_status)
     st.session_state.resync_values = {'result': result}
 
-def update_authorize():
+def update_authorize(sync_status):
     st.session_state.update_auth = False
+    sync_status.info(f"getting {st.session_state.auth_key}")
+    time.sleep(20)
 
 def login_to_linkedin(username, password, driver, sync_status):
     driver.get("https://www.linkedin.com/?original_referer=")
@@ -116,7 +118,7 @@ def login_to_linkedin(username, password, driver, sync_status):
         col1, col2 = sync_status.columns(2)
         
         auth_txt = col1.text_input("Authenticator", key="auth_key")
-        auth_submit_btn = col2.button("Authorize", on_click=update_authorize)
+        auth_submit_btn = col2.button("Authorize", args=(sync_status,), on_click=update_authorize)
         
         while st.session_state.update_auth:
             print("Doing Nothing")
