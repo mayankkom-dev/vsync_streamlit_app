@@ -118,7 +118,7 @@ def login_to_linkedin(username, password, driver, sync_status):
     if 'Security Verification' in driver.title:
         # st.session_state.update_auth =  True
         verification_type = driver.find_elements(By.CLASS_NAME, "form__subtitle")
-        if "verification code" in verification_type:
+        if verification_type and "verification code" in verification_type[0].text:
             st.session_state.sync_status = "On Auth page"
         else:
             st.session_state.sync_status = "On Verification page"
