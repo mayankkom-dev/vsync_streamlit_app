@@ -107,8 +107,12 @@ def login_to_linkedin(username, password, driver, sync_status):
     if 'Security Verification' in driver.title:
         st.session_state.sync_status = "On Verification page"
         sync_status.info(st.session_state.sync_status)
+        #  check the type of verification page you are on
         time.sleep(10)
-        sync_status.write(driver.page_source)
+        col1, col2 = sync_status.columns(2)
+        col1.text_input("Authenticator")
+        col2.button("Submit")
+        # sync_status.write(driver.page_source)
         time.sleep(10)
     # else:    
     # try:
