@@ -120,52 +120,44 @@ def login_to_linkedin(username, password, driver, sync_status):
         verification_type = driver.find_elements(By.CLASS_NAME, "form__subtitle")
         if verification_type and "verification code" in verification_type[0].text:
             st.session_state.sync_status = "On Auth page"
+            sync_status.info(st.session_state.sync_status)
+            #  check the type of verification page you are on
+            time.sleep(10)
+            col1, col2 = sync_status.columns(2)
+            
+            auth_txt = col1.text_input("Authenticator", key="auth_key")
+            auth_submit_btn = col2.button("Authorize", args=(driver, sync_status,), on_click=update_authorize)
+            
+            while st.session_state.update_auth:
+                print("Doing Nothing")
+                time.sleep(1)
+                
         else:
             st.session_state.sync_status = "On Verification page"
-        
-        sync_status.info(st.session_state.sync_status)
-        #  check the type of verification page you are on
-        time.sleep(10)
-        col1, col2 = sync_status.columns(2)
-        
-        auth_txt = col1.text_input("Authenticator", key="auth_key")
-        auth_submit_btn = col2.button("Authorize", args=(driver, sync_status,), on_click=update_authorize)
-        
-        while st.session_state.update_auth:
-            print("Doing Nothing")
-            time.sleep(1)
+            verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
+            verification_btn.click()
+            st.session_state.sync_status = "Clicked Verify"
+            sync_status.info(st.session_state.sync_status)
+            print("Inside verification page")
+            time.sleep(10)
             
-        sync_status.info(f"getting {st.session_state.auth_key}")
-        time.sleep(20)
         
-        # sync_status.write(driver.page_source)
-        time.sleep(10)
-    # else:    
-    # try:
-        verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
-        verification_btn.click()
-        st.session_state.sync_status = "Clicked Verify"
-        sync_status.info(st.session_state.sync_status)
-        print("Inside verification page")
-        time.sleep(10)
-        
-        # Display text
-        text = driver.find_element(By.CSS_SELECTOR, "div.game_children_text").text 
-        sync_status.info(text)
-        time.sleep(10)
-        # Display images
-        # ul_element = driver.find_elements(By.CSS_SELECTOR, "div.game_children_challenge")
-        # # Find all <li> elements within the <ul>
-        # li_elements = ul_element.find_elements_by_tag_name('li')
-        # # Extract image URLs
-        # image_urls = []
-        # for li in li_elements:
-        #     a_element = li.find_element_by_tag_name('a')
-        #     image_url = a_element.get_attribute('aria-label')
-        #     image_urls.append(image_url)
-        # for i, image in enumerate(images):
-        #     src = image.get_attribute("src")
-        #     container.image(src, caption=f"Image {i+1}")
+            text = driver.find_element(By.CSS_SELECTOR, "div.game_children_text").text 
+            sync_status.info(text)
+            time.sleep(10)
+            # Display images
+            # ul_element = driver.find_elements(By.CSS_SELECTOR, "div.game_children_challenge")
+            # # Find all <li> elements within the <ul>
+            # li_elements = ul_element.find_elements_by_tag_name('li')
+            # # Extract image URLs
+            # image_urls = []
+            # for li in li_elements:
+            #     a_element = li.find_element_by_tag_name('a')
+            #     image_url = a_element.get_attribute('aria-label')
+            #     image_urls.append(image_url)
+            # for i, image in enumerate(images):
+            #     src = image.get_attribute("src")
+            #     container.image(src, caption=f"Image {i+1}")
 
 
         
