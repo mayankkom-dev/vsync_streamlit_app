@@ -122,7 +122,7 @@ def login_to_linkedin(username, password, driver, sync_status):
             print("Doing Nothing")
             time.sleep(1)
             
-        sync_status.info(f"getting {auth_txt}")
+        sync_status.info(f"getting {st.session_state.auth_key}")
         time.sleep(20)
         
         # sync_status.write(driver.page_source)
