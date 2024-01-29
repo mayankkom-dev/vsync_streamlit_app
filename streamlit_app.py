@@ -86,6 +86,9 @@ def resync_saved_post(usr, pwd, sync_status):
     result = run_syncup_logic(driver, usr, pwd, sync_status)
     st.session_state.resync_values = {'result': result}
 
+def update_authorize():
+    st.session_state.update_auth = False
+
 def login_to_linkedin(username, password, driver, sync_status):
     driver.get("https://www.linkedin.com/?original_referer=")
     time.sleep(3)
@@ -105,13 +108,23 @@ def login_to_linkedin(username, password, driver, sync_status):
     
     # check if on verification page authenticator page
     if 'Security Verification' in driver.title:
+        st.session_state.update_auth =  True
         st.session_state.sync_status = "On Verification page"
         sync_status.info(st.session_state.sync_status)
         #  check the type of verification page you are on
         time.sleep(10)
         col1, col2 = sync_status.columns(2)
-        col1.text_input("Authenticator")
-        col2.button("Submit")
+        
+        auth_txt = col1.text_input("Authenticator", key="auth_key")
+        auth_submit_btn = col2.button("Authorize", on_click=update_authorize)
+        
+        while st.session_state.update_auth:
+            print("Doing Nothing")
+            time.sleep(1)
+            
+        sync_status.info(f"getting {auth_txt}")
+        time.sleep(20)
+        
         # sync_status.write(driver.page_source)
         time.sleep(10)
     # else:    
@@ -239,6 +252,7 @@ def main_flow():
     if "button" not in st.session_state: st.session_state.button = False
     if "search_item" not in st.session_state: st.session_state.search_item = {'result': None}
     if "sync_status" not in st.session_state: st.session_state.sync_status = ""
+    if "update_auth" not in st.session_state: st.session_state.update_auth = False
     #  .st-emotion-cache-0{
     #                 visibility: hidden;
     #                 }
