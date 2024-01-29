@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
 from flk_scrapper import scrape_lk
 from rest_db import RestDB
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 # Function to get the log path
 def get_logpath(logpath='selenium.log'):
@@ -118,6 +120,8 @@ def login_to_linkedin(username, password, driver, sync_status):
     if 'Security Verification' in driver.title:
         # st.session_state.update_auth =  True
         verification_type = driver.find_elements(By.CLASS_NAME, "form__subtitle")
+        sync_status.info(verification_type[0].text)
+        time.sleep(20)
         if verification_type and "verification code" in verification_type[0].text:
             st.session_state.sync_status = "On Auth page"
             sync_status.info(st.session_state.sync_status)
@@ -134,6 +138,13 @@ def login_to_linkedin(username, password, driver, sync_status):
                 
         else:
             st.session_state.sync_status = "On Verification page"
+            sync_status.info(st.session_state.sync_status)
+            time.sleep(20)
+            sync_status.write(driver.page_source)
+            time.sleep(20)
+            verification_btn = WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Verify')]"))
+            )
             verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
             verification_btn.click()
             st.session_state.sync_status = "Clicked Verify"
