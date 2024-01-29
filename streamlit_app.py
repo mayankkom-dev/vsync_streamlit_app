@@ -86,9 +86,15 @@ def resync_saved_post(usr, pwd, sync_status):
     result = run_syncup_logic(driver, usr, pwd, sync_status)
     st.session_state.resync_values = {'result': result}
 
-def update_authorize(sync_status):
+def update_authorize(driver, sync_status):
     st.session_state.update_auth = False
     sync_status.info(f"getting {st.session_state.auth_key}")
+    driver.find_element("name", "pin").send_keys(st.session_state.auth_key)
+    auth_submit_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Submit')]")
+    auth_submit_btn.click()
+    time.sleep(20)
+    sync_status.info(f"trying to resync")
+    status, driver = scrape_lk(driver, sync_status)
     time.sleep(20)
 
 def login_to_linkedin(username, password, driver, sync_status):
@@ -111,14 +117,19 @@ def login_to_linkedin(username, password, driver, sync_status):
     # check if on verification page authenticator page
     if 'Security Verification' in driver.title:
         # st.session_state.update_auth =  True
-        st.session_state.sync_status = "On Verification page"
+        verification_type = driver.find_elements(By.CLASS_NAME, "form__subtitle")
+        if "verification code" in verification_type:
+            st.session_state.sync_status = "On Auth page"
+        else:
+            st.session_state.sync_status = "On Verification page"
+        
         sync_status.info(st.session_state.sync_status)
         #  check the type of verification page you are on
         time.sleep(10)
         col1, col2 = sync_status.columns(2)
         
         auth_txt = col1.text_input("Authenticator", key="auth_key")
-        auth_submit_btn = col2.button("Authorize", args=(sync_status,), on_click=update_authorize)
+        auth_submit_btn = col2.button("Authorize", args=(driver, sync_status,), on_click=update_authorize)
         
         while st.session_state.update_auth:
             print("Doing Nothing")
