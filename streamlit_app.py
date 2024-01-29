@@ -105,8 +105,8 @@ def login_to_linkedin(username, password, driver, sync_status):
         st.session_state.sync_status = "On Verification page"
         sync_status.info(st.session_state.sync_status)
         time.sleep(10)
-        # sync_status.write(driver.page_source)
-        # time.sleep(10)
+        sync_status.write(driver.page_source)
+        time.sleep(10)
     # else:    
     # try:
         verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")

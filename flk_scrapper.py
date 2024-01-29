@@ -77,7 +77,7 @@ def scrape_lk(driver, sync_status):
             )
 
             # Find elements 
-            # posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
+            posts_elements = driver.find_elements(By.CLASS_NAME, "entity-result__content-container")
         except Exception as e:
             sync_status.info(f"Breaking from no elements {e}")
             time.sleep(3)
