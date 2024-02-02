@@ -8,6 +8,9 @@ from flk_scrapper import scrape_lk
 from rest_db import RestDB
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import base64
+from PIL import Image
+from io import BytesIO
 
 # Function to get the log path
 def get_logpath(logpath='selenium.log'):
@@ -72,11 +75,11 @@ def get_or_create_driver():
 def run_syncup_logic(driver, usr, pwd, sync_status):
     ret = None
     driver = login_to_linkedin(usr, pwd, driver, sync_status)
-    status, driver = scrape_lk(driver, sync_status)
-    st.session_state.sync_status = status
-    # ret = driver.page_source
-    sync_status.write(st.session_state.sync_status)
-    # return ret
+    # status, driver = scrape_lk(driver, sync_status)
+    # st.session_state.sync_status = status
+    # # ret = driver.page_source
+    # sync_status.write(st.session_state.sync_status)
+    # # return ret
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):
     try:
@@ -107,6 +110,18 @@ def update_authorize(driver, sync_status):
     status, driver = scrape_lk(driver, sync_status)
     time.sleep(20)
 
+def update_authorize_img(driver, all_clicks, sync_status):
+    sync_status.info(f"getting {st.session_state.verif_text}")
+    ans = int(st.session_state.verif_text)-1
+    all_clicks[ans].click()
+    time.sleep(10)
+    driver.switch_to.default_content()
+    sync_status.info(f"trying to resync")
+    status, driver = scrape_lk(driver, sync_status)
+    time.sleep(20)
+    st.session_state.update_auth = False
+    
+
 def login_to_linkedin(username, password, driver, sync_status):
     driver.get("https://www.linkedin.com/?original_referer=")
     time.sleep(3)
@@ -120,13 +135,14 @@ def login_to_linkedin(username, password, driver, sync_status):
     # Click the "Sign in" button
     time.sleep(2)
     sign_in_button.click()
-    time.sleep(2)
+    time.sleep(5.7)
     # sync_status.write(driver.page_source)
     # Wait for the page_source to be loaded
     
     # check if on verification page authenticator page
     if 'Security Verification' in driver.title:
         # st.session_state.update_auth =  True
+        
         verification_type = driver.find_elements(By.CLASS_NAME, "form__subtitle")
         
         if verification_type and "verification code" in verification_type[0].text:
@@ -146,58 +162,84 @@ def login_to_linkedin(username, password, driver, sync_status):
         else:
             st.session_state.sync_status = "On Verification page"
             sync_status.info(st.session_state.sync_status)
-            time.sleep(10)
+            time.sleep(2.5)
             # sync_status.write(driver.page_source)
             # time.sleep(10)
-            funcaptcha_iframe = WebDriverWait(driver, 100).until(
-                EC.presence_of_element_located((By.ID, "arkoseframe"))
-            )
-            st.session_state.sync_status = "found iframe"
-            sync_status.info(st.session_state.sync_status)
-            time.sleep(20)
-            driver.switch_to.frame(funcaptcha_iframe)
-            verification_btn = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
-            verification_btn.click()
-            st.session_state.sync_status = "Clicked Verify"
-            sync_status.info(st.session_state.sync_status)
-            print("Inside verification page")
-            time.sleep(10)
-            driver.switch_to.default_content()
+            # Locate the app__content element
+            app_content_element = driver.find_element(By.CLASS_NAME, "app__content")
+
+
+            # Find the iframe element inside app__content
+            reach_final_iframe = False
+            curr_iframe = app_content_element.find_element(By.TAG_NAME, 'iframe')
+            driver.switch_to.frame(curr_iframe)
             
-        
-            text = driver.find_element(By.CSS_SELECTOR, "div.game_children_text").text 
-            sync_status.info(text)
-            time.sleep(10)
-            # Display images
-            # ul_element = driver.find_elements(By.CSS_SELECTOR, "div.game_children_challenge")
-            # # Find all <li> elements within the <ul>
-            # li_elements = ul_element.find_elements_by_tag_name('li')
-            # # Extract image URLs
-            # image_urls = []
-            # for li in li_elements:
-            #     a_element = li.find_element_by_tag_name('a')
-            #     image_url = a_element.get_attribute('aria-label')
-            #     image_urls.append(image_url)
-            # for i, image in enumerate(images):
-            #     src = image.get_attribute("src")
-            #     container.image(src, caption=f"Image {i+1}")
+            while not reach_final_iframe:
+                try:
+                    curr_iframe = driver.find_element(By.TAG_NAME, 'iframe')
+                    driver.switch_to.frame(curr_iframe)
+                    #last_iframe_element = curr_iframe
+                except:
+                    reach_final_iframe = True
 
+            verify_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
+            
+            while not st.session_state.clear_security_multi:
+                time.sleep(2.5) # 
+                verify_button.click()
+                verification_inst = driver.find_element(By.ID, "game_children_text")
+                verif_text = verification_inst.text
+                verification_img = driver.find_element(By.TAG_NAME, "img")
 
-        
-    # except:
-    #     print("Not on verification page")
-    #     pass
+                # Assuming you already have the base64-encoded image data
+                # Remove the "data:image/jpeg;base64," prefix
+                img_src = verification_img.get_attribute('src')
+                base64_data = img_src.split(',')[1]  
+                # # Decode the base64 data
+                binary_data = base64.b64decode(base64_data)
+
+                # # Create a PIL Image from the binary data
+                image = Image.open(BytesIO(binary_data))
+
+                # Display the image in a Streamlit app
+                all_clicks = driver.find_elements(By.TAG_NAME, "a")
+                
+                # user challenge solve input
+                _col1, col3 = sync_status.columns(2)
+                col1, col2 = _col1.columns(2)
+                user_challenge_inp = col1.text_input(f"{verif_text}", key="verif_text")
+                # auth_submit_btn = col2.button("Authorize", args=(driver, sync_status,), on_click=update_authorize)
+                # button_html = f'<img src="{image}" alt="Authorize" style="width:300px;height:200px;"> Authorize'
+                # auth_submit_btn = col2.markdown(label=button_html,
+                #                                 args=(driver, all_clicks, sync_status,), 
+                #                                 on_click=update_authorize_img)
+                auth_submit_btn = col2.button(label='Authorize Img', 
+                                              args=(driver, all_clicks, sync_status,),  
+                                              on_click=update_authorize_img)
+                auth_img = col3.image(image)
+                while st.session_state.update_auth:
+                    print("Doing Nothing")
+                    time.sleep(1)
+                
+                if 'Security Verification' not in driver.title:
+                        st.session_state.clear_security_multi = True
+                
+    else:
+        print(f"Loged In to account : {username}")
+        st.session_state.sync_status = "Successfully Logged In"
+        sync_status.write(st.session_state.sync_status)
+        time.sleep(15)
+        sync_status.write(driver.page_source)
+        time.sleep(15)
+        st.session_state.sync_status = "Going to Scrape"
+        sync_status.write(st.session_state.sync_status)
+        time.sleep(15)
+        status, driver = scrape_lk(driver, sync_status)
+        st.session_state.sync_status = status
+        # ret = driver.page_source
+        sync_status.write(st.session_state.sync_status)
     
     
-    print(f"Loged In to account : {username}")
-    st.session_state.sync_status = "Successfully Logged In"
-    sync_status.write(st.session_state.sync_status)
-    time.sleep(15)
-    sync_status.write(driver.page_source)
-    time.sleep(15)
-    st.session_state.sync_status = "Going to Scrape"
-    sync_status.write(st.session_state.sync_status)
-    time.sleep(15)
     return driver
 
 @st.cache_data
@@ -281,6 +323,8 @@ def main_flow():
     if "search_item" not in st.session_state: st.session_state.search_item = {'result': None}
     if "sync_status" not in st.session_state: st.session_state.sync_status = ""
     if "update_auth" not in st.session_state: st.session_state.update_auth = True
+    if "clear_security_multi" not in st.session_state: st.session_state.clear_security_multi = False
+    
     #  .st-emotion-cache-0{
     #                 visibility: hidden;
     #                 }
