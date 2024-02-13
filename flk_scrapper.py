@@ -61,6 +61,7 @@ def scrape_lk(driver, sync_status):
         if i%5==0:
             upload_restdb(all_valid)
             all_valid = []
+        posts_elements = []
         print('- ' * 8 + "\n")
         print("\033[91m#\nStarting\033[0m\n")
         # posts_elements = WebDriverWait(driver, 10).until(
