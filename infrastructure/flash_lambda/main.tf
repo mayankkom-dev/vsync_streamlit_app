@@ -28,8 +28,8 @@ resource "aws_lambda_layer_version" "vysnc_lambda_layer" {
 
 data "archive_file" "flash_rank_zip" {
   type        = "zip"
-  source_dir  = " ${path.module}/${var.lambda_deploy}/src"
-  output_path = "${path.module}/${var.lambda_deploy}.zip"
+  source_dir  = " ${path.module}/src"
+  output_path = "${path.module}/${var.lambda_code}.zip"
 }
 
 # Create a lambda function
