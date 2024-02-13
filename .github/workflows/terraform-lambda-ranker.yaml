@@ -68,7 +68,7 @@ jobs:
                 poetry config virtualenvs.create true
                 poetry config virtualenvs.path venv_deploy
                 cd infrastructure/flash_lambda
-                poetry install 
+                poetry install --no-root
                 venv_path=$(poetry env info --path)
                 echo "Virtual Environment Path: $venv_path"
                 echo "::set-output name=venv_path::$venv_path"
