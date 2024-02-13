@@ -12,7 +12,7 @@ resource "aws_iam_policy" "vsync_iam_policy_for_lambda" {
 }
 
 # Policy Attachment on the role.
-resource "aws_iam_role_policy_attachment" "magna_attach_iam_policy_to_iam_role" {
+resource "aws_iam_role_policy_attachment" "vsync_attach_iam_policy_to_iam_role" {
   role        = aws_iam_role.vysnc_lambda_role.name
   policy_arn  = aws_iam_policy.vsync_iam_policy_for_lambda.arn
 }
