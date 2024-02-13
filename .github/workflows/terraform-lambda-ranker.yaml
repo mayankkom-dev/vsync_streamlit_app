@@ -64,15 +64,12 @@ jobs:
           - name: Create and Install Dependencies to a New Virtual Environment
             id: poetry-install
             run: |
-                mkdir -p venv_deploy
-                cp infrastructure/flash_lambda/poetry.lock venv_deploy
-                cp infrastructure/flash_lambda/pyproject.toml venv_deploy
-                cd venv_deploy
-                poetry config virtualenvs.create true
-                poetry config virtualenvs.path venv_deploy
-                poetry install
-                venv_path=$(poetry env info --path)
-                echo "Virtual Environment Path: $venv_path"
+                cd infrastructure/flash_lambda
+                poetry install --no-root
+                venv_path=$(poetry config cache-dir)
+                
+                site_packages_path="$venv_path/*/lib/*/site-packages"
+                echo "Virtual Environment Path: $site_packages_path"
                 echo "::set-output name=venv_path::$venv_path"
                 
           # # Default install makes the installation in a venv in /home path
