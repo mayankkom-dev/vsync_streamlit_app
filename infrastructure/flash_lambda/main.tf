@@ -35,7 +35,7 @@ data "archive_file" "flash_rank_zip" {
 # Create a lambda function
 resource "aws_lambda_function" "flash_rank_lambda" {
  filename                       = data.archive_file.flash_rank_zip.output_path
- function_name                  = "Flash Rank Lambda"
+ function_name                  = "Flash-Rank-Lambda"
  role                           = aws_iam_role.vysnc_lambda_role.arn
  handler                        = "flash_rank.rank_query_lambda_handler"
  runtime                        = "python3.10"
