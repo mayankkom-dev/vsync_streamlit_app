@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "vsync-streamlit-app"
 version = "0.1.0"
-description = "Lambda Layer Dependencies"
+description = "Lambda Deployment"
 authors = ["Mayank Kumar <mayankkom.dev@gmail.com>"]
 readme = "README.md"
-packages = [{include = "vsync_streamlit_app"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 flashrank = "^0.1.66"
 
 

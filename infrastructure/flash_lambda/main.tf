@@ -21,7 +21,7 @@ resource "aws_lambda_layer_version" "vysnc_lambda_layer" {
   filename   = data.archive_file.lambda_poetry_dependencies.output_path
   layer_name = "vysnc_lambda_layer"
   compatible_runtimes = [
-    "python3.10",
+    "python3.12",
   ]
   source_code_hash = data.archive_file.lambda_poetry_dependencies.output_base64sha256
 }
@@ -42,7 +42,7 @@ resource "aws_lambda_function" "flash_rank_lambda" {
  function_name                  = "Flash-Rank-Lambda"
  role                           = aws_iam_role.vysnc_lambda_role.arn
  handler                        = "flash_rank.rank_query_lambda_handler"
- runtime                        = "python3.10"
+ runtime                        = "python3.12"
  layers = [aws_lambda_layer_version.vysnc_lambda_layer.arn]
  depends_on                     = [aws_iam_role_policy_attachment.vsync_attach_iam_policy_to_iam_role]
  source_code_hash = data.archive_file.flash_rank_zip.output_base64sha256
