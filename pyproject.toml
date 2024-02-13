@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "virtualsyn-lambda"
+name = "vsync-streamlit-app"
 version = "0.1.0"
-description = "FlashRank Lambda Deployment Environment"
+description = "Lambda Layer Dependencies"
 authors = ["Mayank Kumar <mayankkom.dev@gmail.com>"]
-packages = [{include = "virtualsyn_lambda"}]
+readme = "README.md"
+packages = [{include = "vsync_streamlit_app"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
