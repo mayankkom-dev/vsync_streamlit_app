@@ -26,9 +26,13 @@ resource "aws_lambda_layer_version" "vysnc_lambda_layer" {
   source_code_hash = data.archive_file.lambda_poetry_dependencies.output_base64sha256
 }
 
+output "flash_rank_zip_check" {
+  value = "${path.module}/src"
+}
+
 data "archive_file" "flash_rank_zip" {
   type        = "zip"
-  source_dir  = " ${path.module}/src"
+  source_dir  = "${path.module}/src"
   output_path = "${path.module}/${var.lambda_code}.zip"
 }
 
