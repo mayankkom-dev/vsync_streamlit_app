@@ -67,6 +67,7 @@ jobs:
                 mkdir -p venv_deploy
                 cp infrastructure/flash_lambda/poetry.lock venv_deploy
                 cp infrastructure/flash_lambda/pyproject.toml venv_deploy
+                cd venv_deploy
                 poetry config virtualenvs.create true
                 poetry config virtualenvs.path venv_deploy
                 poetry install
