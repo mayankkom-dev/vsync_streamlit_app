@@ -1,0 +1,143 @@
+name: Terraform Deploy VSync Lambda
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    SetupTerraformS3:
+        runs-on: ubuntu-latest
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'
+        steps:
+          - name: Set up AWS CLI
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              aws-region: us-east-1  # Change this to your desired AWS region
+    
+          - name: Check if S3 bucket exists
+            id: check_bucket
+            run: |
+              BUCKET_NAME="terraform-state-vslambda" # Replace with your desired bucket name
+              if aws s3api head-bucket --bucket $BUCKET_NAME 2>&1 | grep -q 'Not Found'; then
+                echo "Bucket does not exist: $BUCKET_NAME"
+                echo "::set-output name=exists::false"
+              else
+                echo "Bucket already exists: $BUCKET_NAME"
+                echo "::set-output name=exists::true"
+              fi
+    
+          - name: Create S3 bucket if it doesn't exist
+            if: steps.check_bucket.outputs.exists == 'false'
+            run: |
+              BUCKET_NAME="terraform-state-vslambda" # Replace with your desired bucket name
+              aws s3api create-bucket --bucket $BUCKET_NAME --region us-east-1  # Change the region as needed
+              echo "Bucket created: $BUCKET_NAME"
+    
+    TerraformDeploy:
+        runs-on: ubuntu-latest
+        needs: [SetupTerraformS3]
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'
+        steps:
+          # Checkout the repo and workflow can access it
+          - name: Checkout
+            uses: actions/checkout@v3
+          
+          - name: Install poetry
+            run: pipx install poetry
+
+          - name: Set up Python ${{ matrix.python-version }}
+            uses: actions/setup-python@v4
+            id: python
+            with:
+              python-version: '3.10'
+              cache: 'poetry'
+
+          - name: Create and Install Dependencies to a New Virtual Environment
+            id: poetry-install
+            run: |
+                mkdir -p venv_deploy
+                poetry config virtualenvs.create true
+                poetry config virtualenvs.path venv_deploy
+                cd infrastructure/flash_lambda
+                poetry install 
+                venv_path=$(poetry env info --path)
+                echo "Virtual Environment Path: $venv_path"
+                echo "::set-output name=venv_path::$venv_path"
+
+          # # Default install makes the installation in a venv in /home path
+          # # - name: Install dependencies
+          # #   run: poetry install
+
+          # # need git access to write the tag - use latest for time being
+          # - name: Automatic Tagging of Releases
+          #   id: increment-git-tag
+          #   run: |
+          #     bash ./git_update.sh -v major
+          #   working-directory: ./infrastructure
+    
+          # - name: Setup Terraform
+          #   uses: hashicorp/setup-terraform@v1
+          #   with:
+          #     terraform_version: 1.0.0
+          
+          # - name: Update Docker Compose
+          #   run: |
+          #     # Install the latest version of Docker Compose
+          #     sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          #     sudo chmod +x /usr/local/bin/docker-compose
+          #     docker-compose version
+      
+          # - name: Create docker images
+          #   run: |
+          #     docker-compose build
+          
+          # - name: Terraform Init
+          #   id: init
+          #   run: terraform init -upgrade
+          #   working-directory: ./infrastructure    
+    
+          # # - name: Terraform Destroy
+          # #   id: destroy 
+          # #   # run: terraform destroy -auto-approve
+          # #   run: terraform destroy -var "image_tag=${{ env.IMAGE_TAG }}" -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -auto-approve 
+          # #   working-directory: ./infrastructure
+          # #   env:
+          # #       IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+          # #       SITE_PACKAGE_PATH: ${{ steps.poetry-install.outputs.venv_path }}
+            
+          # - name: Terraform Plan
+          #   id: plan
+          #   if: github.event_name == 'push'
+          #   # run: terraform plan -var "image_tag=${{ env.IMAGE_TAG }}" -no-color
+          #   run: terraform plan -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -no-color
+          #   # run: terraform plan -no-color # using latest for now
+          #   working-directory: ./infrastructure
+          #   env:
+          #     # IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+          #     SITE_PACKAGE_PATH: ${{ steps.poetry-install.outputs.venv_path }}
+            
+          # - name: Terraform Plan Status
+          #   if: steps.plan.outcome == 'failure'
+          #   run: exit 1
+        
+          # - name: Terraform Apply
+          #   id: apply
+          #   if: github.event_name == 'push'
+          #   # run: terraform apply -var "image_tag=${{ env.IMAGE_TAG }}" -auto-approve
+          #   run: terraform apply -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -auto-approve
+          #   # run: terraform apply -auto-approve
+          #   working-directory: ./infrastructure
+          #   env:
+          #     IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+          #     SITE_PACKAGE_PATH: ${{ steps.poetry-install.outputs.venv_path }}
+          
+        

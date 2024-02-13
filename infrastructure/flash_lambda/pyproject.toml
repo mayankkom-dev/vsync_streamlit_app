@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "virtualsyn-lambda"
+version = "0.1.0"
+description = "FlashRank Lambda Deployment Environment"
+authors = ["Mayank Kumar <mayankkom.dev@gmail.com>"]
+readme = "README.md"
+packages = [{include = "virtualsyn_lambda"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flashrank = "^0.1.66"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
