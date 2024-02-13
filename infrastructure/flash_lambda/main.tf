@@ -19,7 +19,6 @@ data "archive_file" "lambda_poetry_dependencies" {
 # Create a lambda layer
 resource "aws_lambda_layer_version" "vysnc_lambda_layer" {
   filename   = data.archive_file.lambda_poetry_dependencies.output_path
-  role                           = aws_iam_role.vysnc_lambda_role.arn
   layer_name = "vysnc_lambda_layer"
   compatible_runtimes = [
     "python3.10",
