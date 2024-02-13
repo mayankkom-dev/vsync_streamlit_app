@@ -5,7 +5,7 @@ resource "null_resource" "poetry_dependecy_copy" {
   }
 
   provisioner "local-exec" {
-     command = "mkdir -p ${path.module}/${var.lambda_deploy}/python && cp -r ${path.module}/../../${var.site_packages_path}/lib/python3.10/site-packages/* ${path.module}/${var.lambda_deploy}/python" 
+     command = "mkdir -p ${path.module}/${var.lambda_deploy}/python && cp -r ${path.module}/../../${var.site_packages_path}/lib/python3.12/site-packages/* ${path.module}/${var.lambda_deploy}/python" 
   }
 }
 
