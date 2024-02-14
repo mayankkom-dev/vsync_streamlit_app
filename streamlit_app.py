@@ -263,11 +263,14 @@ def load_flipcard_css():
         css_code = fp.read()
     return f"<style>{css_code}</style>"
 
-def fetch_match_items(input_query):
+def fetch_match_items(input_query, mode='flash'):
     with st.spinner("Scanning virtual memory !!"):
         db_client = rest_db.RestDB()
         all_items_dump = db_client.fetch_all_items()
-        top_resp = flash_retriever_utils.fetch_flash_topn(input_query, all_items_dump)
+        if mode == 'flash':
+            top_resp = flash_retriever_utils.fetch_flash_topn(input_query, all_items_dump)
+        else:
+            top_resp = flash_retriever_utils.fetch_flash_topn(input_query, all_items_dump) #todo: include fast method for retirever step
         # no pagination implement limiting to fix number of top n
         st.session_state.search_item['result'] = top_resp #f'{list(range(20))}'   
 

@@ -6,3 +6,4 @@ webdriver-manager
 flashrank
 ipython
 fastembed
+pymongo[srv]
