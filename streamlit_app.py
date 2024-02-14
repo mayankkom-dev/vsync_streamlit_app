@@ -11,9 +11,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 import base64
 from PIL import Image
 from io import BytesIO
-# import sys
-# sys.path.append('infrastructure/flash_lambda/src/')
-from infrastructure.flash_lambda.src import flash_rank
+import sys
+sys.path.append('infrastructure/flash_lambda/src/')
+# from infrastructure.flash_lambda.src import flash_rank
+import flash_rank
 
 # Function to get the log path
 def get_logpath(logpath='logs/selenium.log'):
