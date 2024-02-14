@@ -24,7 +24,7 @@ def fetch_flash_topn(input_query, all_items):
     if not all_items:
         return []
     prep_query = prep_input_query(input_query)
-    prep_items = prep_all_items(all_items)
+    prep_items = prep_all_items(all_items[:50])
     try:
         rank_result = flash_rank.rank_query_passages(prep_query, prep_items)
     except:
