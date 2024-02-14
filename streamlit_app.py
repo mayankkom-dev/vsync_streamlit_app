@@ -13,7 +13,7 @@ from PIL import Image
 from io import BytesIO
 import sys
 sys.path.append('ml_retrievers/')
-import flash_retriever_utils
+import flash_retriever_utils, fastembed_wrap
 
 
 
@@ -270,7 +270,7 @@ def fetch_match_items(input_query, mode='flash'):
         if mode == 'flash':
             top_resp = flash_retriever_utils.fetch_flash_topn(input_query, all_items_dump)
         else:
-            top_resp = flash_retriever_utils.fetch_flash_topn(input_query, all_items_dump) #todo: include fast method for retirever step
+            top_resp = fastembed_wrap.fetch_fast_topn(input_query) #todo: include fast method for retirever step
         # no pagination implement limiting to fix number of top n
         st.session_state.search_item['result'] = top_resp #f'{list(range(20))}'   
 

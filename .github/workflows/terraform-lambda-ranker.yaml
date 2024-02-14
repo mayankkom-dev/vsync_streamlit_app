@@ -3,7 +3,7 @@ name: Terraform Deploy VSync Lambda
 on:
     push:
         branches:
-            - main
+            - off
 
 jobs:
     SetupTerraformS3:
