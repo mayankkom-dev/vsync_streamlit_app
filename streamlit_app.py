@@ -263,7 +263,7 @@ def load_flipcard_css():
         css_code = fp.read()
     return f"<style>{css_code}</style>"
 
-def fetch_match_items(input_query, mode='flash'):
+def fetch_match_items(input_query, mode='fast'):
     with st.spinner("Scanning virtual memory !!"):
         db_client = rest_db.RestDB()
         all_items_dump = db_client.fetch_all_items()
