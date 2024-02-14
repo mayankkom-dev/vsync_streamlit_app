@@ -11,10 +11,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 import base64
 from PIL import Image
 from io import BytesIO
-# import sys
-# sys.path.append('infrastructure/flash_lambda/src/')
-# # from infrastructure.flash_lambda.src import flash_rank
-# import flash_rank
+import sys
+sys.path.append('ml_retrievers/')
+import flash_retriever_utils
+
+
 
 # Function to get the log path
 def get_logpath(logpath='logs/selenium.log'):
@@ -262,11 +263,13 @@ def load_flipcard_css():
         css_code = fp.read()
     return f"<style>{css_code}</style>"
 
-def fetch_match_items():
+def fetch_match_items(input_query):
     with st.spinner("Scanning virtual memory !!"):
         db_client = rest_db.RestDB()
         all_items_dump = db_client.fetch_all_items()
-        st.session_state.search_item['result'] = all_items_dump #f'{list(range(20))}'   
+        top_resp = flash_retriever_utils.fetch_flash_topn(input_query, all_items_dump)
+        # no pagination implement limiting to fix number of top n
+        st.session_state.search_item['result'] = top_resp #f'{list(range(20))}'   
 
 @st.cache_data
 def fetch_flipcard_layout():
@@ -337,7 +340,7 @@ def main_flow():
     text_input = col1.text_input(label="search_box", 
                                    value="What are you looking for today?", 
                                    label_visibility="collapsed")
-    fetch_item_btn = col2.button("🔍", on_click=fetch_match_items)
+    fetch_item_btn = col2.button("🔍", args=(text_input,), on_click=fetch_match_items)
     sync_btn = col3.button("Syncup", on_click=toggle)
     
     with st.expander('SyncUp LinkedIn', expanded=st.session_state.button):

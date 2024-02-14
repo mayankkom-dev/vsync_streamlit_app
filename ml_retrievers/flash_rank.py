@@ -32,14 +32,14 @@ ranker = Ranker()
 #    }
 # ]
 
-def rank_query_passages(ranker, query, passages):
+def rank_query_passages(query, passages):
     rerankrequest = RerankRequest(query=query, passages=passages)
     results = ranker.rerank(rerankrequest)
     print(results)
     return results
 
 def rank_query_lambda_handler(event, context):
-    return rank_query_passages(ranker, event['query'], event['passages'])
+    return rank_query_passages(event['query'], event['passages'])
 
 if __name__ == "__main__":
     query = "How to speedup LLMs?"
@@ -71,5 +71,5 @@ if __name__ == "__main__":
         "meta": {"additional": "info5"}
     }
     ]
-    res = rank_query_passages(ranker, query, passages)
+    res = rank_query_passages(query, passages)
     print(res)
