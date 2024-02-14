@@ -61,17 +61,17 @@ jobs:
               python-version: '3.12'
               
 
-          - name: Create and Install Dependencies for FlashRank
-            id: poetry-install-flash
-            run: |
-                pip install poetry
-                mkdir -p venv_deploy
-                poetry config virtualenvs.create true
-                poetry config virtualenvs.path venv_deploy
-                poetry install
-                venv_path=$(poetry env info --path)
-                echo "Virtual Environment Path: $venv_path"
-                echo "::set-output name=venv_path::$venv_path"
+          # - name: Create and Install Dependencies for FlashRank
+          #   id: poetry-install-flash
+          #   run: |
+          #       pip install poetry
+          #       mkdir -p venv_deploy
+          #       poetry config virtualenvs.create true
+          #       poetry config virtualenvs.path venv_deploy
+          #       poetry install
+          #       venv_path=$(poetry env info --path)
+          #       echo "Virtual Environment Path: $venv_path"
+          #       echo "::set-output name=venv_path::$venv_path"
           
           - name: Create and Install Dependencies for FastEmbed
             id: poetry-install-fast
@@ -132,12 +132,13 @@ jobs:
             id: plan
             if: github.event_name == 'push'
             # run: terraform plan -var "image_tag=${{ env.IMAGE_TAG }}" -no-color
-            run: terraform plan -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -var "site_packages_path2=${{ env.SITE_PACKAGE_PATH2 }}" -no-color
+            # run: terraform plan -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -var "site_packages_path2=${{ env.SITE_PACKAGE_PATH2 }}" -no-color
+            run: terraform plan -var "site_packages_path2=${{ env.SITE_PACKAGE_PATH2 }}" -no-color
             # run: terraform plan -no-color # using latest for now
             working-directory: ./infrastructure
             env:
               # IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
-              SITE_PACKAGE_PATH: ${{ steps.poetry-install.outputs.venv_path }}
+              # SITE_PACKAGE_PATH: ${{ steps.poetry-install.outputs.venv_path }}
               SITE_PACKAGE_PATH2: ${{ steps.poetry-install-fast.outputs.venv_path2 }}
             
           - name: Terraform Plan Status
@@ -148,12 +149,13 @@ jobs:
             id: apply
             if: github.event_name == 'push'
             # run: terraform apply -var "image_tag=${{ env.IMAGE_TAG }}" -auto-approve
-            run: terraform apply -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -var "site_packages_path2=${{ env.SITE_PACKAGE_PATH2 }}" -auto-approve
+            # run: terraform apply -var "site_packages_path=${{ env.SITE_PACKAGE_PATH }}" -var "site_packages_path2=${{ env.SITE_PACKAGE_PATH2 }}" -auto-approve
+            run: terraform apply -var "site_packages_path2=${{ env.SITE_PACKAGE_PATH2 }}" -auto-approve
             # run: terraform apply -auto-approve
             working-directory: ./infrastructure
             env:
               # IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
-              SITE_PACKAGE_PATH: ${{ steps.poetry-install-flash.outputs.venv_path }}
+              # SITE_PACKAGE_PATH: ${{ steps.poetry-install-flash.outputs.venv_path }}
               SITE_PACKAGE_PATH2: ${{ steps.poetry-install-fast.outputs.venv_path2 }}
           
         
