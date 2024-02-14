@@ -7,13 +7,14 @@ from selenium.common.exceptions import TimeoutException, StaleElementReferenceEx
 from dotenv import load_dotenv
 import time
 import os
-from flk_scrapper_utils import *
+from .flk_scrapper_utils import *
 import concurrent.futures
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-
-from rest_db import RestDB
+import sys
+sys.path.append("../")
+from db_utils import rest_db
 load_dotenv()
 
 # Linkedin credentials
@@ -21,12 +22,12 @@ username = "" #"scratchai.blog@gmail.com"#
 password = "" #os.getenv("LINKEDIN_PASS")
 
 
-def scrape_lk(driver, sync_status):
+def scrape_lk(driver, sync_status, local=True):
     driver.get("https://www.linkedin.com/my-items/saved-posts/")
-    sync_status.write(driver.page_source)
+    # sync_status.write(driver.page_source)
     time.sleep(20)
     stop_sync_flag = {'flag': False}
-    db_client = RestDB()
+    db_client = rest_db.RestDB()
     all_saved_items = [saved_items['id_'] for saved_items in db_client.fetch_all_items()]
     def check_post(post, stop_sync_flag, all_saved_items=all_saved_items):
         if post is not None:
@@ -92,27 +93,25 @@ def scrape_lk(driver, sync_status):
             time.sleep(3)
             break
         batch_elements_len = len(posts_elements)
-        processed_posts = []
-        for post in posts_elements[total_scraped:]:
-            sync_status.info("Processing one at a time")
-            time.sleep(3)
-            try:
-                processed_posts.append(process_post(post))
-            except:
-                sync_status.info("Exception one at a time")
+        if not local:
+            processed_posts = []
+            for post in posts_elements[total_scraped:]:
+                sync_status.info("Processing one at a time")
                 time.sleep(3)
-                
-        # # Number of threads you want to use
-        # num_threads = 3  # Adjust as needed
+                try:
+                    processed_posts.append(process_post(post))
+                except:
+                    sync_status.info("Exception one at a time")
+                    time.sleep(3)
+        else:            
+            # Number of threads you want to use
+            num_threads = 3  # Adjust as needed
 
-        # # Create a ThreadPoolExecutor
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-        #     # Submit tasks to the thread pool
-        #     processed_posts = list(executor.map(process_post, posts_elements[total_scraped:]))
-        # processed_posts = []
-        # for post_ in posts_elements[total_scraped:]:
-        #     prep_post = process_post(post_)
-        #     processed_posts.append(prep_post)
+            # Create a ThreadPoolExecutor
+            with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+                # Submit tasks to the thread pool
+                processed_posts = list(executor.map(process_post, posts_elements[total_scraped:]))
+            
         status_msg = 'Processing Scrapped Batch'
         sync_status.info(status_msg)
         total_scraped = batch_elements_len
@@ -127,7 +126,10 @@ def scrape_lk(driver, sync_status):
         # click_show_more_button()
         # time.sleep(3)
         
-        scroll_to_bottom(driver)
+        try:
+            scroll_to_bottom(driver)
+        except:
+            break
         i += 1
         
 

@@ -4,8 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import streamlit.components.v1 as com
-from flk_scrapper import scrape_lk
-from rest_db import RestDB
+from data_engineering import flk_scrapper
+from db_utils import rest_db
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import base64
@@ -13,7 +13,7 @@ from PIL import Image
 from io import BytesIO
 
 # Function to get the log path
-def get_logpath(logpath='selenium.log'):
+def get_logpath(logpath='logs/selenium.log'):
     return os.path.join(os.getcwd(), logpath)
 
 # Function to delete the Selenium log
@@ -24,7 +24,7 @@ def delete_selenium_log(logpath):
 # Function to get the WebDriver options
 def get_webdriver_options():
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     options.add_argument("--remote-debugging-pipe")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -73,31 +73,39 @@ def get_or_create_driver():
 
 # Function to run sync-up logic
 def run_syncup_logic(driver, usr, pwd, sync_status):
-    ret = None
+    
     driver = login_to_linkedin(usr, pwd, driver, sync_status)
-    # status, driver = scrape_lk(driver, sync_status)
+    # status, driver = flk_scrapper.scrape_lk(driver, sync_status)
     # st.session_state.sync_status = status
     # # ret = driver.page_source
     # sync_status.write(st.session_state.sync_status)
-    # # return ret
+    
 
 def cache_safe_resync_saved_post(usr, pwd, sync_status):
     try:
-        resync_saved_post(usr, pwd, sync_status) # keep only login in this block 
+        # Display a spinner while the function is running
+        driver = get_or_create_driver()
+        # resync_saved_post(usr, pwd, sync_status) # keep only login in this block 
     except:
         # restart Chrome driver
         st.warning("Corrupt Driver.. Restarting")
         if 'driver' in st.session_state: del st.session_state['driver']
-        resync_saved_post(usr, pwd, sync_status)
-
-# Function to handle resync button click
-def resync_saved_post(usr, pwd, sync_status):
-    # Display a spinner while the function is running
-    driver = get_or_create_driver()
+        driver = get_or_create_driver()
+    
     st.session_state.sync_status = "Got the driver"
     sync_status.info(st.session_state.sync_status)
-    result = run_syncup_logic(driver, usr, pwd, sync_status)
-    st.session_state.resync_values = {'result': result}
+    run_syncup_logic(driver, usr, pwd, sync_status)
+    # st.session_state.resync_values = {'result': result}
+    
+
+# # Function to handle resync button click
+# def resync_saved_post(usr, pwd, sync_status):
+#     # Display a spinner while the function is running
+#     driver = get_or_create_driver()
+#     st.session_state.sync_status = "Got the driver"
+#     sync_status.info(st.session_state.sync_status)
+#     result = run_syncup_logic(driver, usr, pwd, sync_status)
+#     st.session_state.resync_values = {'result': result}
 
 def update_authorize(driver, sync_status):
     st.session_state.update_auth = False
@@ -107,7 +115,7 @@ def update_authorize(driver, sync_status):
     auth_submit_btn.click()
     time.sleep(20)
     sync_status.info(f"trying to resync")
-    status, driver = scrape_lk(driver, sync_status)
+    status, driver = flk_scrapper.scrape_lk(driver, sync_status)
     time.sleep(20)
 
 def update_authorize_img(driver, all_clicks, sync_status):
@@ -117,7 +125,7 @@ def update_authorize_img(driver, all_clicks, sync_status):
     time.sleep(10)
     driver.switch_to.default_content()
     sync_status.info(f"trying to resync")
-    status, driver = scrape_lk(driver, sync_status)
+    status, driver = flk_scrapper.scrape_lk(driver, sync_status)
     time.sleep(20)
     st.session_state.update_auth = False
     
@@ -183,10 +191,11 @@ def login_to_linkedin(username, password, driver, sync_status):
                     reach_final_iframe = True
 
             verify_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Verify')]")
-            
+            verify_button.click()
+
             while not st.session_state.clear_security_multi:
                 time.sleep(2.5) # 
-                verify_button.click()
+                
                 verification_inst = driver.find_element(By.ID, "game_children_text")
                 verif_text = verification_inst.text
                 verification_img = driver.find_element(By.TAG_NAME, "img")
@@ -222,19 +231,20 @@ def login_to_linkedin(username, password, driver, sync_status):
                     time.sleep(1)
                 
                 if 'Security Verification' not in driver.title:
-                        st.session_state.clear_security_multi = True
+                    st.session_state.clear_security_multi = True
+                    st.session_state.update_auth = True
                 
     else:
         print(f"Loged In to account : {username}")
         st.session_state.sync_status = "Successfully Logged In"
         sync_status.write(st.session_state.sync_status)
         time.sleep(15)
-        sync_status.write(driver.page_source)
-        time.sleep(15)
+        # sync_status.write(driver.page_source)
+        # time.sleep(15)
         st.session_state.sync_status = "Going to Scrape"
         sync_status.write(st.session_state.sync_status)
         time.sleep(15)
-        status, driver = scrape_lk(driver, sync_status)
+        status, driver = flk_scrapper.scrape_lk(driver, sync_status)
         st.session_state.sync_status = status
         # ret = driver.page_source
         sync_status.write(st.session_state.sync_status)
@@ -244,19 +254,19 @@ def login_to_linkedin(username, password, driver, sync_status):
 
 @st.cache_data
 def load_flipcard_css():
-    with open("flipcard.css") as fp:
+    with open("ui_component/flipcard.css") as fp:
         css_code = fp.read()
     return f"<style>{css_code}</style>"
 
 def fetch_match_items():
     with st.spinner("Scanning virtual memory !!"):
-        db_client = RestDB()
+        db_client = rest_db.RestDB()
         all_items_dump = db_client.fetch_all_items()
         st.session_state.search_item['result'] = all_items_dump #f'{list(range(20))}'   
 
 @st.cache_data
 def fetch_flipcard_layout():
-    with open('flipcard.html') as fp:
+    with open('ui_component/flipcard.html') as fp:
         flipcard_html = fp.read()
     return flipcard_html
 
@@ -275,31 +285,9 @@ def gen_flipcard(val): # try except and clean cache for that val
 
 @st.cache_data
 def gen_flip_js():
-    return """<script>
-            function flipCard(card) {
-                card.classList.toggle('is-flipped');
-            }
-
-            function openLink(event) {
-                // Prevent the card from flipping when clicking on the link
-                event.stopPropagation();
-            }
-            //function openPopup(url) {
-            // Show the popup
-            //document.getElementById('popup').style.display = 'block';
-
-            // Load the content into the iframe
-            //document.getElementById('popupFrame').src = url;
-            //}
-
-            //function closePopup() {
-            // Hide the popup
-            //document.getElementById('popup').style.display = 'none';
-
-            // Clear the iframe content
-            //document.getElementById('popupFrame').src = 'about:blank';
-            //}
-            </script> """
+    with open('ui_component/flipcard.js') as fp:
+        flipcard_js = fp.read()
+    return f"""{flipcard_js}"""
 
 
 # Main flow of the Streamlit app
@@ -311,13 +299,13 @@ def main_flow():
         st.markdown('''Interact with your virtual memory and find things faster and efficient
             ''', unsafe_allow_html=True)
     with col2:
-        st.image('logo.png')
+        st.image('ui_component/logo.png')
     st.markdown('---')
     # add ballon to session
     if 'first_start' not in st.session_state: st.session_state.first_start = {'value': None}
     if st.session_state.first_start['value'] is None: st.balloons()
     
-    if 'resync_values' not in st.session_state: st.session_state.resync_values = {'result': None}
+    # if 'resync_values' not in st.session_state: st.session_state.resync_values = {'result': None}
     # initialise a boolean attr in session state
     if "button" not in st.session_state: st.session_state.button = False
     if "search_item" not in st.session_state: st.session_state.search_item = {'result': None}
@@ -359,6 +347,7 @@ def main_flow():
         
         col2.button('Submit', args=(username, pwd, sync_status), on_click=cache_safe_resync_saved_post)
     
+    result_container = st.empty()
     search_result = st.empty()
     
     
@@ -397,17 +386,17 @@ def main_flow():
         #     with col2:
         #         com.html(f"{css_design}\n{js_script}\n{gen_flipcard(row_items[st_idx+1])}", height=300, width=224)
 
-    result_container = st.empty()
+    
     log_container = st.empty()
     
-    result = st.session_state.resync_values['result']
+    result = st.session_state.get('sync_status', None)
     if result is not None:
         with result_container:
-          st.session_state.sync_status = 'Sync Completed Successfully'
-          sync_status.info(st.session_state.sync_status)
+        #   st.session_state.sync_status = 'Sync Completed Successfully'
+        #   sync_status.info(st.session_state.sync_status)
           st.write(result)
           
-    if st.session_state.first_start['value'] is not None:
+    if st.session_state.first_start['value'] is not None and st.session_state.search_item['result'] is None:
         with log_container:  
             show_selenium_log(logpath=logpath)
     
