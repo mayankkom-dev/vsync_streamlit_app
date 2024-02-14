@@ -41,7 +41,7 @@ resource "aws_lambda_function" "fast_rank_lambda" {
  filename                       = data.archive_file.fast_embed_zip.output_path
  function_name                  = "Fast-Rank-Lambda"
  role                           = aws_iam_role.vsync_fast_lambda_role.arn
- handler                        = "flash_rank.rank_query_lambda_handler"
+ handler                        = "fastembed_wrap.gen_embedding_lambda_handler"
  runtime                        = "python3.12"
  layers = [aws_lambda_layer_version.vsync_lambda_layer_fast.arn]
  depends_on                     = [aws_iam_role_policy_attachment.vsync_fast_attach_iam_policy_to_iam_role]
