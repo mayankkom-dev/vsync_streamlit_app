@@ -3,7 +3,7 @@ name: Terraform Deploy VSync Lambda
 on:
     push:
         branches:
-            - alpha
+            - main
 
 jobs:
     SetupTerraformS3:
@@ -61,8 +61,8 @@ jobs:
               python-version: '3.12'
               
 
-          - name: Create and Install Dependencies to a New Virtual Environment
-            id: poetry-install
+          - name: Create and Install Dependencies for FlashRank
+            id: poetry-install-flash
             run: |
                 pip install poetry
                 mkdir -p venv_deploy
@@ -72,6 +72,20 @@ jobs:
                 venv_path=$(poetry env info --path)
                 echo "Virtual Environment Path: $venv_path"
                 echo "::set-output name=venv_path::$venv_path"
+          
+          - name: Create and Install Dependencies for FastEmbed
+            id: poetry-install-fast
+            run: |
+                pip install poetry
+                cp infrastructure/fast_lambda/poetry/pyproject.toml .
+                cp infrastructure/fast_lambda/poetry/poetry.lock .
+                mkdir -p venv_deploy2
+                poetry config virtualenvs.create true
+                poetry config virtualenvs.path venv_deploy2
+                poetry install
+                venv_path2=$(poetry env info --path)
+                echo "Virtual Environment Path2: $venv_path2"
+                echo "::set-output name=venv_path2::$venv_path2"
                 
           # # Default install makes the installation in a venv in /home path
           # # - name: Install dependencies
@@ -138,6 +152,7 @@ jobs:
             working-directory: ./infrastructure
             env:
               # IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
-              SITE_PACKAGE_PATH: ${{ steps.poetry-install.outputs.venv_path }}
+              SITE_PACKAGE_PATH: ${{ steps.poetry-install-flash.outputs.venv_path }}
+              SITE_PACKAGE_PATH2: ${{ steps.poetry-install-fast.outputs.venv_path2 }}
           
         
