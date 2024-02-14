@@ -17,9 +17,9 @@ data "archive_file" "lambda_poetry_dependencies_fast" {
 }
 
 # Create a lambda layer
-resource "aws_lambda_layer_version" "vysnc_lambda_layer_fast" {
+resource "aws_lambda_layer_version" "vsync_lambda_layer_fast" {
   filename   = data.archive_file.lambda_poetry_dependencies_fast.output_path
-  layer_name = "vysnc_lambda_layer_fast"
+  layer_name = "vsync_lambda_layer_fast"
   compatible_runtimes = [
     "python3.12",
   ]
@@ -43,7 +43,7 @@ resource "aws_lambda_function" "fast_rank_lambda" {
  role                           = aws_iam_role.vsync_fast_lambda_role.arn
  handler                        = "flash_rank.rank_query_lambda_handler"
  runtime                        = "python3.12"
- layers = [aws_lambda_layer_version.vysnc_lambda_layer_fast.arn]
+ layers = [aws_lambda_layer_version.vsync_lambda_layer_fast.arn]
  depends_on                     = [aws_iam_role_policy_attachment.vsync_fast_attach_iam_policy_to_iam_role]
  source_code_hash = data.archive_file.fast_embed_zip.output_base64sha256
 }
