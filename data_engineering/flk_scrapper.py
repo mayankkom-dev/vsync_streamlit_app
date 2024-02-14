@@ -22,7 +22,7 @@ username = "" #"scratchai.blog@gmail.com"#
 password = "" #os.getenv("LINKEDIN_PASS")
 
 
-def scrape_lk(driver, sync_status, local=True):
+def scrape_lk(driver, sync_status, local=False):
     driver.get("https://www.linkedin.com/my-items/saved-posts/")
     # sync_status.write(driver.page_source)
     time.sleep(20)
